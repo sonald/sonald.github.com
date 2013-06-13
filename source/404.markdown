@@ -1,0 +1,9 @@
+---
+layout: page
+title: Page Not Found
+footer: false
+---
+
+Sorry, You're in the wrong place.
+
+Maybe try the search box (top right), or look through the [archives](/archives/)?

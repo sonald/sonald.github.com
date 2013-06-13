@@ -1,0 +1,19 @@
+---
+layout: post
+title: "zsh gem(1)"
+date: 2012-03-28 13:29
+comments: true
+tags: [zsh]
+---
+
+zsh is my favorate shell, super powerful. there are a lot of blogs about it, and I recommend 
+a book [From bash to z shell][book], and the site also contains some wonderful references.
+
+[book]: http://www.bash2zsh.com/
+
+Here I just wanna show some cool quick snippets of what zsh capable of, just for fun.
+So guess what this does?
+
+{% include_code zsh/compare_dirs.sh %}
+
+

@@ -1,0 +1,16 @@
+---
+layout: post
+title: "zsh tips"
+date: 2012-05-15 21:31
+comments: true
+tags: [zsh]
+published: false
+---
+
+zsh is my favourate shell, it has a lot great features. here are some tips I collected from anywhere.
+
+* the almighty 'Tab', at anytime, try press 'Tab' key, you may get something interesting happen.
+* `setopt` to see all options set. 
+* `^old^new` to fastly replace old with new from last executed command
+* `!!:gs/old/new` do globally replacement
+* history -D -40 -2
