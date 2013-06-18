@@ -3,7 +3,7 @@ layout: post
 title: "a pattern for creating js object"
 date: 2012-06-11 11:07
 comments: true
-tags: [js]
+tags: [javascript]
 ---
 
 在看一些node模块的代码的时候，发现很多都会使用一种奇怪的方式构造对象。
