@@ -3,14 +3,13 @@ date: 2013-06-16 23:04:33
 tags: [regex, tip]
 ---
 
-最近看了Russ Cox大神关于正则的[文章][4]。深深的被打动了。仔细看完文章之后，一时兴起，自己鼓捣了一个实现，然后再看他的代码，还是不得不佩服大神对C的指正的理解。
+最近看了Russ Cox大神关于正则的[文章][4]。深深的被打动了。仔细看完文章之后，一时兴起，自己鼓捣了一个实现，然后再看他的代码，还是不得不佩服大神对C指针的运用。
 
 ## Russ Cox在实现时用到的一些指针技巧
 
-+ 在[nfa][6]的实现中，最有意思的地方就是PtrList的定义。一般我们在定义一个单项链表时都会定义成一个结构struct，但是在这里它被定义成union。在C中，一个union中的所有成员是共享一个地址的，怎么能表示一个链表结构呢？仔细分析后，一切就很清楚了。这里之所以可以用union的前提是基于这样一个事实，即：一个Frag中的PtrList成员所指向的是State结构中out或者out1指针的地址，在调用patch之前它的值是NULL。list1中在根据一个outp指针构造一个PtrList时是直接将其强制转换为一个PtrList。因为这个outp是某个State的out或out1的地址，还没有跟其他State连接起来（通过patch操作连接），所以这么做不会影响任何现有State对象。这个非常trick的设计需要对PtrList的作用和使用方式（在post2nfa函数中）有很深的理解。我在自己实现的时候没有使用这样的方式，目的主要是为了清晰可读。
+* 在[nfa][6]的实现中，最有意思的地方就是PtrList的定义。一般我们在定义一个单项链表时都会定义成一个结构struct，但是在这里它被定义成union。在C中，一个union中的所有成员是共享一个地址的，怎么能表示一个链表结构呢？仔细分析后，一切就很清楚了。这里之所以可以用union的前提是基于这样一个事实，即：一个Frag中的PtrList成员所指向的是State结构中out或者out1指针的地址，在调用patch之前它的值是NULL。list1中在根据一个outp指针构造一个PtrList时是直接将其强制转换为一个PtrList。因为这个outp是某个State的out或out1的地址，还没有跟其他State连接起来（通过patch操作连接），所以这么做不会影响任何现有State对象。这个非常trick的设计需要对PtrList的作用和使用方式（在post2nfa函数中）有很深的理解。我在自己实现的时候没有使用这样的方式，目的主要是为了清晰可读。
 
-```C
-
+{% codeblock PtrList lang:cpp %}
     /*
      * Since the out pointers in the list are always 
      * uninitialized, we use the pointers themselves
@@ -32,28 +31,23 @@ tags: [regex, tip]
     	l->next = NULL;
     	return l;
     }
+{% endcodeblock %}
 
-```
+* 在[dfa][1]的`dstate`函数实现中，当分配一个DState的内存空间时，不仅分配了DState结构体本身的内存，同时还分配了List结构中State列表的内存。这么做减少了内存分配的碎片。
 
-
-
-+ 在[dfa][1]的`dstate`函数实现中，当分配一个DState的内存空间时，不仅分配了DState结构体本身的内存，同时还分配了List结构中State列表的内存。这么做减少了内存分配的碎片。
-
-```C
-
+{% codeblock dstate lang:cpp %}
     /* allocate, initialize new DState */
     d = malloc(sizeof *d + l->n*sizeof l->s[0]);
     memset(d, 0, sizeof *d);
     d->l.s = (State**)(d+1);
     memmove(d->l.s, l->s, l->n*sizeof l->s[0]);
     d->l.n = l->n;
-    
-```
+{% endcodeblock %}    
 
-+ [dfa1][1]的实现加入了受控的内存使用，即只缓存特定数量的DFA状态，如果超出限制将回收当前分配的所以DState对象，回收的方法很有技巧，核心如下面的两个函数所示：
 
-```C
+* [dfa1][1]的实现加入了受控的内存使用，即只缓存特定数量的DFA状态，如果超出限制将回收当前分配的所以DState对象，回收的方法很有技巧，核心如下面的两个函数所示：
 
+{% codeblock freestates lang:cpp %}
     /* Free the tree of states rooted at d. */
     void
     freestates(DState *d)
@@ -75,13 +69,11 @@ tags: [regex, tip]
     	alldstates = NULL;
     	nstates = 0;
     }
-
-```
+{% endcodeblock %}
 
 也即回收之后并没用free掉之前分配的内存，而是转而将所有DState构造成一个单项链表（复用了DState的left指针）。这个链表的头是freelist。于是在分配一个DState空间时会优先检查freelist是否有项可用。
 
-```C
-
+{% codeblock allocdstate lang:cpp %}
     /* Allocate DStates from a cached list. */
     DState*
     allocdstate(void)
@@ -99,8 +91,7 @@ tags: [regex, tip]
     	memset(d->next, 0, sizeof d->next);
     	return d;
     }
-
-```
+{% endcodeblock %}
 
 这个技巧充分复用了已经分配的数据结构，聪明的降低了内存释放的开销。
 
