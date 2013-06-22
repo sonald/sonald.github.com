@@ -95,12 +95,49 @@ tags: [regex, tip]
 
 这个技巧充分复用了已经分配的数据结构，聪明的降低了内存释放的开销。
 
++ `nfa-posix.y`的实现也很有意思，他的主要目的是为了实现`submatch extraction`。也就是[这里][7]提到的：
+> There are two possible ways to avoid the seemingly unbounded tracking of space implied by POSIX submatching semantics. First, it turns out that matching the regular expression backward bounds the bookkeeping to being linear in the size of the regular expression. This program demonstrates the technique. 
+
+`nfa-posix.y`采用的是逆向匹配正则，主要体现在两个地方：
+
+{% codeblock paren lang:cpp %}
+Frag
+paren(Frag f, int n)
+{
+    State *s1, *s2;
+
+    if(n > MPAREN)
+        return f;
+    s1 = state(RParen, n, f.start, NULL);
+    s2 = state(LParen, n, NULL, NULL);
+    patch(f.out, s2);
+    return frag(s1, list1(&s2->out));
+}
+{% endcodeblock %}
+
+注意这里构造的Frag的顺序，右括号指向f，f的出口指向左括号。
+
+{% codeblock concat lang:cpp %}
+concat:
+    repeat
+|   concat repeat
+    {
+        patch($2.out, $1.start);
+        $$ = frag($2.start, $1.out);
+    }
+;
+{% endcodeblock %}
+
+可以对比下nfa里的实现，正好是反向的。$2的出口指向$1的开始。要是不细心，可能会忽略这两个微小而重要的区别。
+
+因此，通过文中的parser构造的NFA是逆向的，所以match函数也是从字符串的尾部开始匹配。
+
 ## 我的实现
 我根据[文章][4]中的描述，重写了一个实现。主要是去掉了一个静态的分配，正则的解析改用递归下降解析。并且将所有自动机内部的状态信息都封装到一个结构体中，加强了内存管理，可以释放内部创建的所有资源。我用Xcode自带的Instruments测试没有内存泄露，还算不错。我的实现放在[github][5]上了。
 
-另外，我将文章中相关的几个实现一起放在仓库里了，方便自己研究用。
+PS: 我将文章中相关的几个实现一起放在仓库里了，方便自己研究用。
 
-PS：顺便还发现了一个`nfa-posix.y`中的bug，我要不要告诉他呢。。。。纠结啊，应该是个笔误。
+PPS：顺便还发现了一个`nfa-posix.y`中的bug，我要不要告诉他呢。。。。纠结啊，应该是个笔误。
 
 [1]: http://swtch.com/~rsc/regexp/dfa0.c.txt
 [2]: http://swtch.com/~rsc/regexp/dfa1.c.txt
@@ -108,3 +145,4 @@ PS：顺便还发现了一个`nfa-posix.y`中的bug，我要不要告诉他呢�
 [4]: http://swtch.com/~rsc/regexp/regexp1.html
 [5]: https://github.com/sonald/thompson-nfa
 [6]: http://swtch.com/~rsc/regexp/nfa.c.txt
+[7]: http://swtch.com/~rsc/regexp/regexp2.html
