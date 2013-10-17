@@ -1,6 +1,6 @@
 title: thompson nfa: a tale of fast RE
 date: 2013-06-16 23:04:33
-tags: [regex, tip]
+tags: [regex, tip, c]
 ---
 
 最近看了Russ Cox大神关于正则的[文章][4]。深深的被打动了。仔细看完文章之后，一时兴起，自己鼓捣了一个实现，然后再看他的代码，还是不得不佩服大神对C指针的运用。
