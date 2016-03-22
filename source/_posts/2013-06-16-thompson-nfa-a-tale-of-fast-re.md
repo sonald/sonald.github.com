@@ -1,4 +1,4 @@
-title: thompson nfa: a tale of fast RE
+title: "thompson nfa: a tale of fast RE"
 date: 2013-06-16 23:04:33
 tags: [regex, tip, c]
 ---

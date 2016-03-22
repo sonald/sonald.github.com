@@ -1,4 +1,4 @@
-title: leetcode: Copy List with Random Pointer 
+title: "leetcode: Copy List with Random Pointer "
 date: 2014-11-30 11:25:12
 tags: [algorithm]
 ---

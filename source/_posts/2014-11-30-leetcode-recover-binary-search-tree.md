@@ -1,4 +1,4 @@
-title: leetcode: Recover Binary Search Tree
+title: "leetcode: Recover Binary Search Tree"
 date: 2014-11-30 00:21:28
 tags: [algorithm]
 ---

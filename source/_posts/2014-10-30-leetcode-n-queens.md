@@ -1,4 +1,4 @@
-title: leetcode: n queens
+title: "leetcode: n queens"
 date: 2014-10-30 22:18:03
 tags: [algorithm]
 ---

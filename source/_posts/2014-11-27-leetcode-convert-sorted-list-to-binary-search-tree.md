@@ -1,4 +1,4 @@
-title: leetcode: Convert Sorted List to Binary Search Tree
+title: "leetcode: Convert Sorted List to Binary Search Tree"
 date: 2014-11-27 18:25:52
 tags: [algorithm]
 ---

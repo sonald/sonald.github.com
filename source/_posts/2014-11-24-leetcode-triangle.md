@@ -1,4 +1,4 @@
-title: leetcode: triangle
+title: "leetcode: triangle"
 date: 2014-11-24 19:24:29
 tags: [algorithm]
 ---

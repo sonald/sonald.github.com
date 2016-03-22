@@ -1,4 +1,4 @@
-title: leetcode: longest consecutive sequence
+title: "'leetcode: longest consecutive sequence'"
 date: 2014-12-05 21:32:10
 tags: [algorithm]
 ---

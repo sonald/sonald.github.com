@@ -1,4 +1,4 @@
-title: leetcode: first missing positive
+title: "leetcode: first missing positive"
 date: 2014-10-28 18:42:06
 tags: [algorithm]
 ---

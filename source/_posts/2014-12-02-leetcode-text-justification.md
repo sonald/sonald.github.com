@@ -1,4 +1,4 @@
-title: leetcode: text justification
+title: "leetcode: text justification"
 date: 2014-12-02 12:54:56
 tags: [algorithm]
 ---

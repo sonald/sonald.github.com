@@ -1,4 +1,4 @@
-title: leetcode: largest rectangle in histogram
+title: "leetcode: largest rectangle in histogram"
 date: 2014-11-17 21:23:20
 tags: [algorithm]
 ---

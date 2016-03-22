@@ -1,4 +1,5 @@
-title: {{ title|raw }}
+---
+title: {{ title }}
 date: {{ date }}
 tags:
 ---

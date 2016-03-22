@@ -1,4 +1,4 @@
-title: leetcode: path sum
+title: "leetcode: path sum"
 date: 2014-11-11 23:04:38
 tags: [algorithm]
 ---
