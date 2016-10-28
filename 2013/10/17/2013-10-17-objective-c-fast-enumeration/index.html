@@ -1,0 +1,249 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Objective C fast enumeration | Working funny way</title>
+  <meta name="author" content="Sian Cao">
+  
+  <meta name="description" content="了解Objective C的都知道，Objective C在C原有的for基础上增加了一个新的语言特性fast enumeration。官方文档里提到fast enumeration要比使用NSEnumerator快，我想不是很多人知道或者想过为什么fast enumeration会更快。
+首先，一">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Objective C fast enumeration"/>
+  <meta property="og:site_name" content="Working funny way"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Working funny way" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-40340886-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+    <img style="margin-right: 30px"
+        src="https://www.gravatar.com/avatar/5965dd93d497bef6e9a0b4029b0e023d">
+    </img>
+</div>
+<div class="alignleft">
+  <h1><a href="/">Working funny way</a></h1>
+  <h2><a href="/">just some random thoughts and coding related</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+      <li><a href="http://sonald.github.io/Resume">Resume</a></li>
+    
+      <li><a href="http://github.com/sonald">Github</a></li>
+    
+      <li><a href="/about">About</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-10-17T07:24:52.000Z"><a href="/2013/10/17/2013-10-17-objective-c-fast-enumeration/">2013-10-17</a></time>
+      
+      
+  
+    <h1 class="title">Objective C fast enumeration</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>了解Objective C的都知道，Objective C在C原有的for基础上增加了一个新的语言特性<em>fast enumeration</em>。<a href="https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/ProgrammingWithObjectiveC/FoundationTypesandCollections/FoundationTypesandCollections.html#//apple_ref/doc/uid/TP40011210-CH7-SW28" target="_blank" rel="external">官方文档</a>里提到<em>fast enumeration</em>要比使用NSEnumerator快，我想不是很多人知道或者想过为什么<em>fast enumeration</em>会更快。</p>
+<p>首先，一个Objective C的类要支持<em>fast enumeration</em>就必须实现<strong>NSFastEnumeration</strong>协议。这个协议只有一个方法<strong>countByEnumeratingWithState:objects:count:</strong>，官方文档写的不太清楚，估计只看这个没人知道怎么自己实现一个支持<em>fast enumeration</em>的类。我们可以看看GNUStep里<a href="http://code.ohloh.net/file?fid=rBQ8ejiDJHQ_lQYdK8w5SEehznQ&amp;cid=UA1S9WRENpI&amp;s=NSArray%20&amp;pp=0&amp;fp=296183&amp;ff=1&amp;filterChecked=true&amp;mp=1&amp;ml=1&amp;me=1&amp;md=1#L1" target="_blank" rel="external">NSArray</a>的实现作为参考（Cocoa框架不开源）：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- (<span class="built_in">NSUInteger</span>) countByEnumeratingWithState: (<span class="built_in">NSFastEnumerationState</span>*)state</span><br><span class="line">				   objects: (__unsafe_unretained <span class="keyword">id</span>[])stackbuf</span><br><span class="line">				     count: (<span class="built_in">NSUInteger</span>)len</span><br><span class="line">&#123;</span><br><span class="line">  <span class="built_in">NSUInteger</span> size = [<span class="keyword">self</span> count];</span><br><span class="line">  <span class="built_in">NSInteger</span> count;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* This is cached in the caller at the start and compared at each</span><br><span class="line">   * iteration.   If it changes during the iteration then</span><br><span class="line">   * objc_enumerationMutation() will be called, throwing an exception.</span><br><span class="line">   */</span></span><br><span class="line">  state-&gt;mutationsPtr = (<span class="keyword">unsigned</span> <span class="keyword">long</span> *)size;</span><br><span class="line">  count = MIN(len, size - state-&gt;state);</span><br><span class="line">  <span class="comment">/* If a mutation has occurred then it's possible that we are being asked to</span><br><span class="line">   * get objects from after the end of the array.  Don't pass negative values</span><br><span class="line">   * to memcpy.</span><br><span class="line">   */</span></span><br><span class="line">  <span class="keyword">if</span> (count &gt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      IMP	imp = [<span class="keyword">self</span> methodForSelector: <span class="keyword">@selector</span>(objectAtIndex:)];</span><br><span class="line">      <span class="keyword">int</span>	p = state-&gt;state;</span><br><span class="line">      <span class="keyword">int</span>	i;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; count; i++, p++)</span><br><span class="line">	&#123;</span><br><span class="line">	  stackbuf[i] = (*imp)(<span class="keyword">self</span>, <span class="keyword">@selector</span>(objectAtIndex:), p);</span><br><span class="line">	&#125;</span><br><span class="line">      state-&gt;state += count;</span><br><span class="line">    &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      count = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  state-&gt;itemsPtr = stackbuf;</span><br><span class="line">  <span class="keyword">return</span> count;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代码很简单，就是从数组中取出连续的一部分，通过参数state传给调用者。这个函数会被编译器生成的代码调用。</p>
+<p>下面一段简单的代码使用了<strong>fast enumeration</strong>：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">void</span> fastEnum()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSArray</span> *arr = @[<span class="string">@"one"</span>, <span class="string">@"two"</span>, <span class="string">@"three"</span>];</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">id</span> s <span class="keyword">in</span> arr) &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"val: %@"</span>, s);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译器生成的代码大概是这样的：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">void</span> fastEnum()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSArray</span> *arr = ((<span class="built_in">NSArray</span> *(*)(<span class="keyword">id</span>, SEL, <span class="keyword">const</span> <span class="keyword">id</span> *, <span class="built_in">NSUInteger</span>))(<span class="keyword">void</span> *)objc_msgSend)(</span><br><span class="line">            objc_getClass(<span class="string">"NSArray"</span>),</span><br><span class="line">            sel_registerName(<span class="string">"arrayWithObjects:count:"</span>),</span><br><span class="line">            (<span class="keyword">const</span> <span class="keyword">id</span> *)__<span class="built_in">NSContainer_literal</span>(<span class="number">3</span>U,</span><br><span class="line">                (<span class="built_in">NSString</span> *)&amp;__<span class="built_in">NSConstantStringImpl__var_folders_c4_mzdkvk5n677bsntjw9d7qtzw0000gn_T_Untitled_9O7vfS_mi_0</span>,</span><br><span class="line">                (<span class="built_in">NSString</span> *)&amp;__<span class="built_in">NSConstantStringImpl__var_folders_c4_mzdkvk5n677bsntjw9d7qtzw0000gn_T_Untitled_9O7vfS_mi_1</span>,</span><br><span class="line">                (<span class="built_in">NSString</span> *)&amp;__<span class="built_in">NSConstantStringImpl__var_folders_c4_mzdkvk5n677bsntjw9d7qtzw0000gn_T_Untitled_9O7vfS_mi_2</span>).arr,</span><br><span class="line">            <span class="number">3</span>U);</span><br><span class="line">    </span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">id</span> s;</span><br><span class="line">	<span class="keyword">struct</span> __objcFastEnumerationState enumState = &#123; <span class="number">0</span> &#125;;</span><br><span class="line">	<span class="keyword">id</span> __rw_items[<span class="number">16</span>];</span><br><span class="line">	<span class="keyword">id</span> l_collection = (<span class="keyword">id</span>) arr;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> limit =</span><br><span class="line">		((<span class="keyword">unsigned</span> <span class="keyword">int</span> (*) (<span class="keyword">id</span>, SEL, <span class="keyword">struct</span> __objcFastEnumerationState *, <span class="keyword">id</span> *, <span class="keyword">unsigned</span> <span class="keyword">int</span>))(<span class="keyword">void</span> *)objc_msgSend)</span><br><span class="line">		((<span class="keyword">id</span>)l_collection,</span><br><span class="line">		sel_registerName(<span class="string">"countByEnumeratingWithState:objects:count:"</span>),</span><br><span class="line">		&amp;enumState, (<span class="keyword">id</span> *)__rw_items, (<span class="keyword">unsigned</span> <span class="keyword">int</span>)<span class="number">16</span>);</span><br><span class="line">	<span class="keyword">if</span> (limit) &#123;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> startMutations = *enumState.mutationsPtr;</span><br><span class="line">	<span class="keyword">do</span> &#123;</span><br><span class="line">		<span class="keyword">unsigned</span> <span class="keyword">long</span> counter = <span class="number">0</span>;</span><br><span class="line">		<span class="keyword">do</span> &#123;</span><br><span class="line">			<span class="keyword">if</span> (startMutations != *enumState.mutationsPtr)</span><br><span class="line">				objc_enumerationMutation(l_collection);</span><br><span class="line">			s = (<span class="keyword">id</span>)enumState.itemsPtr[counter++]; &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>((<span class="built_in">NSString</span> *)&amp;__<span class="built_in">NSConstantStringImpl__var_folders_c4_mzdkvk5n677bsntjw9d7qtzw0000gn_T_Untitled_9O7vfS_mi_3</span>, s);</span><br><span class="line">    &#125;;</span><br><span class="line">	__continue_label_1: ;</span><br><span class="line">		&#125; <span class="keyword">while</span> (counter &lt; limit);</span><br><span class="line">	&#125; <span class="keyword">while</span> (limit = ((<span class="keyword">unsigned</span> <span class="keyword">int</span> (*) (<span class="keyword">id</span>, SEL, <span class="keyword">struct</span> __objcFastEnumerationState *, <span class="keyword">id</span> *, <span class="keyword">unsigned</span> <span class="keyword">int</span>))(<span class="keyword">void</span> *)objc_msgSend)</span><br><span class="line">		((<span class="keyword">id</span>)l_collection,</span><br><span class="line">		sel_registerName(<span class="string">"countByEnumeratingWithState:objects:count:"</span>),</span><br><span class="line">		&amp;enumState, (<span class="keyword">id</span> *)__rw_items, (<span class="keyword">unsigned</span> <span class="keyword">int</span>)<span class="number">16</span>));</span><br><span class="line">	s = ((<span class="keyword">id</span>)<span class="number">0</span>);</span><br><span class="line">	__break_label_1: ;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		s = ((<span class="keyword">id</span>)<span class="number">0</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这段代码是通过<code>clang -x objective-c -fobjc-arc -rewrite-objc test.m</code>生成的，去掉其他框架代码，只留下fastEnum的实现。<br>对比一下，可以看到，编译器生成了两层while循环，外层循环每次调用<strong>countByEnumeratingWithState:objects:count:</strong>读取16个连续的对象，内层循环逐个访问对象并检查集合是否发生了修改（如果发生了修改，则调用<strong>objc_enumerationMutation</strong>抛出异常）。<strong>fast enumeration</strong>性能的关键是<strong>countByEnumeratingWithState:objects:count:</strong>如何快速批量读取连续的对象。但是如果是像GNUStep里的实现，在性能上就不会有太大的优势。因为使用了objectAtIndex逐个取出对象，这跟NSEnumerator取出对象的方法类似。所以我估计苹果在自己的实现中使用了一些技巧，能够直接访问到NSArray的内部数据，而不是通过objactAtIndex逐个读取。</p>
+<p>这里有一个<a href="http://darkdust.net/writings/objective-c/nsarray-enumeration-performance" target="_blank" rel="external">性能测试</a>，可以看到当集合里的对象数量足够多的时候，<strong>fast enumeration</strong>的优势还是很明显的。</p>
+<p>PS: <a href="http://www.mikeash.com/pyblog/friday-qa-2010-04-16-implementing-fast-enumeration.html" target="_blank" rel="external">这里</a>有一个如何在自定义类中实现MSFastEnumeration的说明，可以对如何合理的实现<strong>countByEnumeratingWithState:objects:count:</strong>有一个认识。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+  
+  <div class="tags">
+    <a href="/tags/objc/">objc</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+      <a class="addthis_button_pinterest_pinit" pi:pinit:layout="horizontal"></a>
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">Kommentare</h1>
+
+  
+      <div id="fb-root"></div>
+<script>
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=123456789012345";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<div class="fb-comments" data-href="http://sonald.me/2013/10/17/2013-10-17-objective-c-fast-enumeration/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+      
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Suche">
+    <input type="hidden" name="q" value="site:sonald.me">
+  </form>
+</div>
+
+  
+
+  
+<div class="widget tag">
+  <h3 class="title">Tags</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/algorithm/">algorithm</a><small>13</small></li>
+  
+    <li><a href="/tags/android/">android</a><small>1</small></li>
+  
+    <li><a href="/tags/c/">c</a><small>1</small></li>
+  
+    <li><a href="/tags/emacs/">emacs</a><small>3</small></li>
+  
+    <li><a href="/tags/iterm2/">iterm2</a><small>2</small></li>
+  
+    <li><a href="/tags/javascript/">javascript</a><small>4</small></li>
+  
+    <li><a href="/tags/map/">map</a><small>1</small></li>
+  
+    <li><a href="/tags/mutter/">mutter</a><small>1</small></li>
+  
+    <li><a href="/tags/nepomuk/">nepomuk</a><small>1</small></li>
+  
+    <li><a href="/tags/nodejs/">nodejs</a><small>6</small></li>
+  
+    <li><a href="/tags/objc/">objc</a><small>2</small></li>
+  
+    <li><a href="/tags/octopress/">octopress</a><small>1</small></li>
+  
+    <li><a href="/tags/os/">os</a><small>1</small></li>
+  
+    <li><a href="/tags/performance/">performance</a><small>1</small></li>
+  
+    <li><a href="/tags/principle/">principle</a><small>1</small></li>
+  
+    <li><a href="/tags/programming/">programming</a><small>1</small></li>
+  
+    <li><a href="/tags/rails/">rails</a><small>1</small></li>
+  
+    <li><a href="/tags/regex/">regex</a><small>1</small></li>
+  
+    <li><a href="/tags/ruby/">ruby</a><small>1</small></li>
+  
+    <li><a href="/tags/thought/">thought</a><small>1</small></li>
+  
+    <li><a href="/tags/tip/">tip</a><small>6</small></li>
+  
+    <li><a href="/tags/utils/">utils</a><small>1</small></li>
+  
+    <li><a href="/tags/web/">web</a><small>2</small></li>
+  
+    <li><a href="/tags/wm/">wm</a><small>1</small></li>
+  
+    <li><a href="/tags/zsh/">zsh</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 Sian Cao
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

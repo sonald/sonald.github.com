@@ -1,0 +1,250 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>leetcode: Copy List with Random Pointer  | Working funny way</title>
+  <meta name="author" content="Sian Cao">
+  
+  <meta name="description" content="This problam inspires a lot of interesting solutions. 
+we can create the new list by iterating the origin list. when the origin node has a random poin">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="leetcode: Copy List with Random Pointer "/>
+  <meta property="og:site_name" content="Working funny way"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Working funny way" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-40340886-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+    <img style="margin-right: 30px"
+        src="https://www.gravatar.com/avatar/5965dd93d497bef6e9a0b4029b0e023d">
+    </img>
+</div>
+<div class="alignleft">
+  <h1><a href="/">Working funny way</a></h1>
+  <h2><a href="/">just some random thoughts and coding related</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+      <li><a href="http://sonald.github.io/Resume">Resume</a></li>
+    
+      <li><a href="http://github.com/sonald">Github</a></li>
+    
+      <li><a href="/about">About</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-11-30T03:25:12.000Z"><a href="/2014/11/30/2014-11-30-leetcode-copy-list-with-random-pointer-/">2014-11-30</a></time>
+      
+      
+  
+    <h1 class="title">leetcode: Copy List with Random Pointer </h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p><a href="https://oj.leetcode.com/problems/copy-list-with-random-pointer/" target="_blank" rel="external">This problam</a> inspires a lot of interesting solutions. </p>
+<p>we can create the new list by iterating the origin list. when the origin node has a random pointer. we spawn a new node and record it in a map. the key of map is the random pointer from origin node and the value is the new node for new list. </p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Solution &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">RandomListNode *<span class="title">copyRandomList</span><span class="params">(RandomListNode *head)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// old &lt;-&gt; new</span></span><br><span class="line">        <span class="built_in">unordered_map</span>&lt;RandomListNode*, RandomListNode*&gt; rel;</span><br><span class="line">        RandomListNode* p = head;</span><br><span class="line">        RandomListNode dummy &#123;<span class="number">0</span>&#125;;</span><br><span class="line">        RandomListNode* res = &amp;dummy;</span><br><span class="line">        <span class="keyword">while</span> (p) &#123;</span><br><span class="line">            <span class="keyword">if</span> (rel.find(p) != rel.end()) &#123;</span><br><span class="line">                res-&gt;next = rel[p];</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                res-&gt;next = <span class="keyword">new</span> RandomListNode &#123;p-&gt;label&#125;;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (p-&gt;random) &#123;</span><br><span class="line">                <span class="keyword">if</span> (rel.find(p-&gt;random) == rel.end()) &#123;</span><br><span class="line">                    rel[p-&gt;random] = <span class="keyword">new</span> RandomListNode &#123;p-&gt;random-&gt;label&#125;;</span><br><span class="line">                &#125;</span><br><span class="line">                res-&gt;next-&gt;random = rel[p-&gt;random];</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            p = p-&gt;next;</span><br><span class="line">            res = res-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dummy.next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>Another interesting way of doing it w/o extra space can be accomplished by:</p>
+<ol>
+<li>first generate new list’s nodes and interleave with old list by using old node’s next pointer to pointer to new node. after this done, we get one single list with two lists’ nodes included and interleaved.</li>
+<li>repair new list nodes’ random pointer inplace.</li>
+<li>split two lists apart to restore the structure.</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Solution &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">RandomListNode *<span class="title">copyRandomList</span><span class="params">(RandomListNode *head)</span> </span>&#123;</span><br><span class="line">        RandomListNode* p = head;</span><br><span class="line">        RandomListNode dummy &#123;<span class="number">0</span>&#125;;</span><br><span class="line">        RandomListNode* res = &amp;dummy;</span><br><span class="line">        <span class="keyword">while</span> (p) &#123;</span><br><span class="line">            <span class="keyword">auto</span>* t = <span class="keyword">new</span> RandomListNode &#123;p-&gt;label&#125;;</span><br><span class="line">            t-&gt;next = p-&gt;next;</span><br><span class="line">            p-&gt;next = t;</span><br><span class="line">            p = t-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        p = head;</span><br><span class="line">        <span class="keyword">while</span> (p) &#123;</span><br><span class="line">            <span class="keyword">if</span> (p-&gt;random)</span><br><span class="line">                p-&gt;next-&gt;random = p-&gt;random-&gt;next;</span><br><span class="line">            p = p-&gt;next-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        p = head;</span><br><span class="line">        <span class="keyword">if</span> (p) &#123; dummy.next = p-&gt;next; res = p-&gt;next; &#125;</span><br><span class="line">        <span class="keyword">while</span> (p) &#123;</span><br><span class="line">            p-&gt;next = p-&gt;next-&gt;next;</span><br><span class="line">            <span class="keyword">if</span> (res-&gt;next) res-&gt;next = res-&gt;next-&gt;next;</span><br><span class="line">            p = p-&gt;next;</span><br><span class="line">            res = res-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dummy.next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>PS: if OJ allows me to modify the orignal list, then we can actually do it in two-pass without extra space.</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Solution &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">RandomListNode *<span class="title">copyRandomList</span><span class="params">(RandomListNode *head)</span> </span>&#123;</span><br><span class="line">        RandomListNode* p = head;</span><br><span class="line">        RandomListNode dummy &#123;<span class="number">0</span>&#125;;</span><br><span class="line">        RandomListNode* res = &amp;dummy;</span><br><span class="line">        <span class="keyword">while</span> (p) &#123;</span><br><span class="line">            res-&gt;next = <span class="keyword">new</span> RandomListNode &#123;p-&gt;label&#125;;</span><br><span class="line">            res-&gt;next-&gt;random = p-&gt;random;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">auto</span>* pp = p;</span><br><span class="line">            p = p-&gt;next;</span><br><span class="line">            pp-&gt;next = res-&gt;next;</span><br><span class="line">            res = res-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        res = dummy.next;</span><br><span class="line">        <span class="keyword">while</span> (res) &#123;</span><br><span class="line">            <span class="keyword">if</span> (res-&gt;random) res-&gt;random = res-&gt;random-&gt;next;</span><br><span class="line">            res = res-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dummy.next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+  
+  <div class="tags">
+    <a href="/tags/algorithm/">algorithm</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+      <a class="addthis_button_pinterest_pinit" pi:pinit:layout="horizontal"></a>
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">Kommentare</h1>
+
+  
+      <div id="fb-root"></div>
+<script>
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=123456789012345";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<div class="fb-comments" data-href="http://sonald.me/2014/11/30/2014-11-30-leetcode-copy-list-with-random-pointer-/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+      
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Suche">
+    <input type="hidden" name="q" value="site:sonald.me">
+  </form>
+</div>
+
+  
+
+  
+<div class="widget tag">
+  <h3 class="title">Tags</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/algorithm/">algorithm</a><small>13</small></li>
+  
+    <li><a href="/tags/android/">android</a><small>1</small></li>
+  
+    <li><a href="/tags/c/">c</a><small>1</small></li>
+  
+    <li><a href="/tags/emacs/">emacs</a><small>3</small></li>
+  
+    <li><a href="/tags/iterm2/">iterm2</a><small>2</small></li>
+  
+    <li><a href="/tags/javascript/">javascript</a><small>4</small></li>
+  
+    <li><a href="/tags/map/">map</a><small>1</small></li>
+  
+    <li><a href="/tags/mutter/">mutter</a><small>1</small></li>
+  
+    <li><a href="/tags/nepomuk/">nepomuk</a><small>1</small></li>
+  
+    <li><a href="/tags/nodejs/">nodejs</a><small>6</small></li>
+  
+    <li><a href="/tags/objc/">objc</a><small>2</small></li>
+  
+    <li><a href="/tags/octopress/">octopress</a><small>1</small></li>
+  
+    <li><a href="/tags/os/">os</a><small>1</small></li>
+  
+    <li><a href="/tags/performance/">performance</a><small>1</small></li>
+  
+    <li><a href="/tags/principle/">principle</a><small>1</small></li>
+  
+    <li><a href="/tags/programming/">programming</a><small>1</small></li>
+  
+    <li><a href="/tags/rails/">rails</a><small>1</small></li>
+  
+    <li><a href="/tags/regex/">regex</a><small>1</small></li>
+  
+    <li><a href="/tags/ruby/">ruby</a><small>1</small></li>
+  
+    <li><a href="/tags/thought/">thought</a><small>1</small></li>
+  
+    <li><a href="/tags/tip/">tip</a><small>6</small></li>
+  
+    <li><a href="/tags/utils/">utils</a><small>1</small></li>
+  
+    <li><a href="/tags/web/">web</a><small>2</small></li>
+  
+    <li><a href="/tags/wm/">wm</a><small>1</small></li>
+  
+    <li><a href="/tags/zsh/">zsh</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 Sian Cao
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

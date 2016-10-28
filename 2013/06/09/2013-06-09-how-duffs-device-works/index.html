@@ -1,0 +1,243 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>how duffs device works | Working funny way</title>
+  <meta name="author" content="Sian Cao">
+  
+  <meta name="description" content="上次看到一段JS的代码觉得很酷，今天偶尔看到另一篇文章，讲的是原C版的Duff’s Device。自认为对C很有认识了，没想到这种诡异的写法还是难倒我了。现在才知道原来C的语法可以这么灵活。原文里给出了一个链接，是一个C的yacc语法文件。根据这个文件里switch和statement的描述可以很清">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="how duffs device works"/>
+  <meta property="og:site_name" content="Working funny way"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Working funny way" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-40340886-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+    <img style="margin-right: 30px"
+        src="https://www.gravatar.com/avatar/5965dd93d497bef6e9a0b4029b0e023d">
+    </img>
+</div>
+<div class="alignleft">
+  <h1><a href="/">Working funny way</a></h1>
+  <h2><a href="/">just some random thoughts and coding related</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+      <li><a href="http://sonald.github.io/Resume">Resume</a></li>
+    
+      <li><a href="http://github.com/sonald">Github</a></li>
+    
+      <li><a href="/about">About</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-06-09T03:11:25.000Z"><a href="/2013/06/09/2013-06-09-how-duffs-device-works/">2013-06-09</a></time>
+      
+      
+  
+    <h1 class="title">how duffs device works</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p><a href="/2013/04/17/javascript-tip-duffs-device/">上次</a>看到一段JS的代码觉得很酷，今天偶尔看到<a href="http://tenaciousc.com/how-duffs-device-works/" target="_blank" rel="external">另一篇文章</a>，讲的是原C版的Duff’s Device。自认为对C很有认识了，没想到这种诡异的写法还是难倒我了。现在才知道原来C的语法可以这么灵活。原文里给出了一个<a href="http://www.lysator.liu.se/c/ANSI-C-grammar-y.html" target="_blank" rel="external">链接</a>，是一个C的yacc语法文件。根据这个文件里switch和statement的描述可以很清楚的看出来，在switch中可以嵌入任何复杂的statement，而不仅仅是迭代语句。那到底生成的代码时怎么样的呢，它的工作原理在<a href="http://tenaciousc.com/how-duffs-device-works/" target="_blank" rel="external">文章</a>里已经进行了描述，但是想要知道到底是怎么样的，还是得看汇编，于是我将下面一段代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span><br><span class="line"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> key = <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">switch</span>(key)</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; ++i) &#123;</span><br><span class="line">            key = i;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">2</span>: <span class="built_in">printf</span>(<span class="string">"case 2: key is %d\n"</span>, key);</span><br><span class="line">        <span class="keyword">case</span> <span class="number">4</span>: <span class="built_in">printf</span>(<span class="string">"case 4: key is %d\n"</span>, key);</span><br><span class="line">        &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>用<code>clang -S -emit-llvm</code>反汇编了出来，核心的部分如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">  %key = alloca i32, align 4</span><br><span class="line">  %i = alloca i32, align 4</span><br><span class="line">  store i32 0, i32* %1</span><br><span class="line">  store i32 %argc, i32* %2, align 4</span><br><span class="line">  store i8** %argv, i8*** %3, align 8</span><br><span class="line">  store i32 2, i32* %key, align 4</span><br><span class="line">  %4 = load i32* %key, align 4</span><br><span class="line">  switch i32 %4, label %19 [</span><br><span class="line">    i32 2, label %11</span><br><span class="line">    i32 4, label %13</span><br><span class="line">  ]</span><br><span class="line">                                                  ; No predecessors!</span><br><span class="line">  store i32 0, i32* %i, align 4</span><br><span class="line">  br label %6</span><br><span class="line"></span><br><span class="line">; &lt;label&gt;:6                                       ; preds = %15, %5</span><br><span class="line">  %7 = load i32* %i, align 4</span><br><span class="line">  %8 = icmp slt i32 %7, 10</span><br><span class="line">  br i1 %8, label %9, label %18</span><br><span class="line"></span><br><span class="line">; &lt;label&gt;:9                                       ; preds = %6</span><br><span class="line">  %10 = load i32* %i, align 4</span><br><span class="line">  store i32 %10, i32* %key, align 4</span><br><span class="line">  br label %11</span><br><span class="line"></span><br><span class="line">; &lt;label&gt;:11                                      ; preds = %0, %9</span><br><span class="line">  %12 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([10 x i8]* @.str, i32 0, i32 0))</span><br><span class="line">  br label %13</span><br><span class="line"></span><br><span class="line">; &lt;label&gt;:13                                      ; preds = %0, %11</span><br><span class="line">  %14 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([10 x i8]* @.str1, i32 0, i32 0))</span><br><span class="line">  br label %15</span><br><span class="line"></span><br><span class="line">; &lt;label&gt;:15                                      ; preds = %13</span><br><span class="line">  %16 = load i32* %i, align 4</span><br><span class="line">  %17 = add nsw i32 %16, 1</span><br><span class="line">  store i32 %17, i32* %i, align 4</span><br><span class="line">  br label %6</span><br><span class="line"></span><br><span class="line">; &lt;label&gt;:18                                      ; preds = %6</span><br><span class="line">  br label %19</span><br><span class="line"></span><br><span class="line">; &lt;label&gt;:19                                      ; preds = %18, %0</span><br><span class="line">  ret i32 0</span><br></pre></td></tr></table></figure>
+<p>这个可读性还是很强的，基本上就是switch块和嵌入switch的循环被拆成两个独立的代码块，并且switch的分支语句会跳转到for循环体中带有相应label的部分。这个跳转只会影响for的第一次迭代，之后就是正常的循环了。另外，如果switch分支没有任何匹配的case，就会跳过整个循环（代码中switch的默认label是%19，对应函数的结尾处）。</p>
+<p>这个技巧有什么用我也不知道，说不定什么时候能派上用场呢。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+  
+  <div class="tags">
+    <a href="/tags/tip/">tip</a>, <a href="/tags/programming/">programming</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+      <a class="addthis_button_pinterest_pinit" pi:pinit:layout="horizontal"></a>
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">Kommentare</h1>
+
+  
+      <div id="fb-root"></div>
+<script>
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=123456789012345";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<div class="fb-comments" data-href="http://sonald.me/2013/06/09/2013-06-09-how-duffs-device-works/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+      
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Suche">
+    <input type="hidden" name="q" value="site:sonald.me">
+  </form>
+</div>
+
+  
+
+  
+<div class="widget tag">
+  <h3 class="title">Tags</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/algorithm/">algorithm</a><small>13</small></li>
+  
+    <li><a href="/tags/android/">android</a><small>1</small></li>
+  
+    <li><a href="/tags/c/">c</a><small>1</small></li>
+  
+    <li><a href="/tags/emacs/">emacs</a><small>3</small></li>
+  
+    <li><a href="/tags/iterm2/">iterm2</a><small>2</small></li>
+  
+    <li><a href="/tags/javascript/">javascript</a><small>4</small></li>
+  
+    <li><a href="/tags/map/">map</a><small>1</small></li>
+  
+    <li><a href="/tags/mutter/">mutter</a><small>1</small></li>
+  
+    <li><a href="/tags/nepomuk/">nepomuk</a><small>1</small></li>
+  
+    <li><a href="/tags/nodejs/">nodejs</a><small>6</small></li>
+  
+    <li><a href="/tags/objc/">objc</a><small>2</small></li>
+  
+    <li><a href="/tags/octopress/">octopress</a><small>1</small></li>
+  
+    <li><a href="/tags/os/">os</a><small>1</small></li>
+  
+    <li><a href="/tags/performance/">performance</a><small>1</small></li>
+  
+    <li><a href="/tags/principle/">principle</a><small>1</small></li>
+  
+    <li><a href="/tags/programming/">programming</a><small>1</small></li>
+  
+    <li><a href="/tags/rails/">rails</a><small>1</small></li>
+  
+    <li><a href="/tags/regex/">regex</a><small>1</small></li>
+  
+    <li><a href="/tags/ruby/">ruby</a><small>1</small></li>
+  
+    <li><a href="/tags/thought/">thought</a><small>1</small></li>
+  
+    <li><a href="/tags/tip/">tip</a><small>6</small></li>
+  
+    <li><a href="/tags/utils/">utils</a><small>1</small></li>
+  
+    <li><a href="/tags/web/">web</a><small>2</small></li>
+  
+    <li><a href="/tags/wm/">wm</a><small>1</small></li>
+  
+    <li><a href="/tags/zsh/">zsh</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 Sian Cao
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

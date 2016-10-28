@@ -1,0 +1,539 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Seite 3 | Working funny way</title>
+  <meta name="author" content="Sian Cao">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+  <meta property="og:site_name" content="Working funny way"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Working funny way" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-40340886-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+    <img style="margin-right: 30px"
+        src="https://www.gravatar.com/avatar/5965dd93d497bef6e9a0b4029b0e023d">
+    </img>
+</div>
+<div class="alignleft">
+  <h1><a href="/">Working funny way</a></h1>
+  <h2><a href="/">just some random thoughts and coding related</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+      <li><a href="http://sonald.github.io/Resume">Resume</a></li>
+    
+      <li><a href="http://github.com/sonald">Github</a></li>
+    
+      <li><a href="/about">About</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper">
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-04-21T06:54:15.000Z"><a href="/2013/04/21/2013-04-21-double-click-to-highlight-surrounding-in-terminal-dot-app-or-iterm2/">2013-04-21</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/04/21/2013-04-21-double-click-to-highlight-surrounding-in-terminal-dot-app-or-iterm2/">double click to highlight surrounding in terminal.app or iterm2</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>This is a cool feature I didn’t expect! Turns out that you can<br>double-click a surround will highlight the whole surrounded<br>region. It works in both Terminal.app and iTerm2.</p>
+<p>Found that <a href="http://justincampbell.me/til" target="_blank" rel="external">here</a>, go to there and see the gif!</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-04-17T07:56:58.000Z"><a href="/2013/04/17/2013-04-17-javascript-tip-duffs-device/">2013-04-17</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/04/17/2013-04-17-javascript-tip-duffs-device/">javascript tip: Duff&#39;s Device</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>偶尔在网上闲逛的时候，总能发现一些短小精悍的代码，优雅简练，下面这个就是一个例子：</p>
+<pre><code><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> iterations = <span class="built_in">Math</span>.ceil(values.length / <span class="number">8</span>);</span><br><span class="line"><span class="keyword">var</span> startAt = values.length % <span class="number">8</span>;</span><br><span class="line"><span class="keyword">var</span> i = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">do</span> &#123;</span><br><span class="line">    <span class="keyword">switch</span>(startAt)&#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0</span>: process(values[i++]);</span><br><span class="line">        <span class="keyword">case</span> <span class="number">7</span>: process(values[i++]);</span><br><span class="line">        <span class="keyword">case</span> <span class="number">6</span>: process(values[i++]);</span><br><span class="line">        <span class="keyword">case</span> <span class="number">5</span>: process(values[i++]);</span><br><span class="line">        <span class="keyword">case</span> <span class="number">4</span>: process(values[i++]);</span><br><span class="line">        <span class="keyword">case</span> <span class="number">3</span>: process(values[i++]);</span><br><span class="line">        <span class="keyword">case</span> <span class="number">2</span>: process(values[i++]);</span><br><span class="line">        <span class="keyword">case</span> <span class="number">1</span>: process(values[i++]);</span><br><span class="line">    &#125;</span><br><span class="line">    startAt = <span class="number">0</span>;</span><br><span class="line">&#125; <span class="keyword">while</span> (--iterations &gt; <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+</code></pre><p>原来是用C实现的，这里改成Javascript版本。它的作用是用来优化对一个大数组的循环访问。如果对Javascript感兴趣，可以看<a href="http://oreilly.com/server-administration/excerpts/even-faster-websites/writing-efficient-javascript.html" target="_blank" rel="external">这里</a>，作者是yahoo的大牛。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-04-16T18:47:40.000Z"><a href="/2013/04/17/2013-04-17-how-i-fixed-invalid-byte-sequence-in-utf-8/">2013-04-17</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/04/17/2013-04-17-how-i-fixed-invalid-byte-sequence-in-utf-8/">how I fixed invalid byte sequence in UTF-8</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <h2 id="TL-DR"><a href="#TL-DR" class="headerlink" title="TL;DR"></a>TL;DR</h2><p>The real problem I encounter and resolution is <a href="http://daniel.hepper.net/blog/2012/03/down-the-rabbit-hole/" target="_blank" rel="external">here</a>.</p>
+<h2 id="About-ArgumentError-invalid-byte-sequence-in-UTF-8"><a href="#About-ArgumentError-invalid-byte-sequence-in-UTF-8" class="headerlink" title="About ArgumentError: invalid byte sequence in UTF-8"></a>About ArgumentError: invalid byte sequence in UTF-8</h2><p>when I switch from linux box to Mac, I have to setup octopress<br>for my blog. I have followed the guide, do <code>rvm requirements</code> and<br> have ruby 1.9.3 installed cleanly. but when I hit <code>bundle install</code> every time, It just gives me nothing but an<br> <code>ArgumentError: invalid byte sequence in UTF-8</code> error. Since I’m<br>  not quite familiar with ruby, I googled a lot, and none of<br>  the solutions fits me. After a long time of unlucky, finally I found the real problem.<br>  </p><p><br>  First things first, the real problem is that I had changed files under <code>/etc/paths.d/</code>, and vim leaved undelete hidden file under that path. The consequence is that <code>path_helper</code> will read all files (including hidden files) to build PATH variable, which then included unprintable chars which is invalid utf8 sequence. This is the reason <code>bundle install</code> complained about. but after I deleted all hidden files under <code>/etc/paths.d</code>, the problems still exists! Now that as <a href="http://www.codinghorror.com/blog/2008/03/the-first-rule-of-programming-its-always-your-fault.html" target="_blank" rel="external">First Rule of Programming: It’s always your fault</a> said, the problem must be mine. After a few moment of pondering, I found the problem is that I’m in a tmux session and it cached PATH variable! So I quit tmux and restart, everything works great now.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2012-12-26T03:58:00.000Z"><a href="/2012/12/26/2012-12-26-make-mark-all-like-this-scope-sensitive-in-javascript/">2012-12-26</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2012/12/26/2012-12-26-make-mark-all-like-this-scope-sensitive-in-javascript/">make mark all like this scope sensitive in javascript</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>sublime text 2的多cursor功能很强大，在做某些操作的时候很方便。但是标记<br>多cursor也很麻烦。emacs的<a href="https://github.com/magnars/multiple-cursors.el" target="_blank" rel="external">multiple-cursors</a>可以用来模仿这个特性，而且<br>更好的是它完全可以融入emacs的环境里，配合其他mode来使用会更加强大。但是<br>有个小问题是它的标记是基于正则的，这在有些时候不太方便，比如在js里，我<br>想标记某个变量的所有实例，就很难。于是自己写了一个函数来解决这个问题。</p>
+<figure class="highlight scheme"><figcaption><span>sycao/js2-mark-token-at-point</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">(<span class="name">defun</span> sycao/js2-mark-token-at-point ()</span><br><span class="line">  <span class="string">"mark all semantic instances of the variable under cursor within the defining scope"</span></span><br><span class="line">  (<span class="name">interactive</span>)</span><br><span class="line">  (<span class="name">mc/remove-fake-cursors</span>)</span><br><span class="line">  (<span class="name"><span class="builtin-name">let</span></span> ((<span class="name">ref-node</span> (<span class="name">js2-node-at-point</span>))</span><br><span class="line">        (<span class="name">ref-node-beg</span> nil)</span><br><span class="line">        name</span><br><span class="line">        scope)</span><br><span class="line"></span><br><span class="line">    (<span class="name">setq</span> ref-node-beg (<span class="name">js2-node-abs-pos</span> ref-node))</span><br><span class="line">    (<span class="name"><span class="builtin-name">unless</span></span> (<span class="name">region-active-p</span>)</span><br><span class="line">      (<span class="name">goto-char</span> ref-node-beg)</span><br><span class="line">      (<span class="name">push-mark</span> (<span class="name"><span class="builtin-name">+</span></span> ref-node-beg (<span class="name">js2-node-len</span> ref-node)))</span><br><span class="line">      (<span class="name">activate-mark</span>))</span><br><span class="line"></span><br><span class="line">    (<span class="name">save-excursion</span></span><br><span class="line">      (<span class="name"><span class="builtin-name">when</span></span> (<span class="name"><span class="builtin-name">and</span></span> ref-node (<span class="name">js2-name-node-p</span> ref-node))</span><br><span class="line">        (<span class="name">setq</span> scope (<span class="name">js2-node-get-enclosing-scope</span> ref-node)</span><br><span class="line">              name (<span class="name">js2-name-node-name</span> ref-node))</span><br><span class="line">        (<span class="name">setq</span> scope (<span class="name">js2-get-defining-scope</span> scope name))</span><br><span class="line">        (<span class="name">js2-visit-ast</span></span><br><span class="line">         scope</span><br><span class="line">         (<span class="name"><span class="builtin-name">lambda</span></span> (node end-p)</span><br><span class="line">           (<span class="name"><span class="builtin-name">when</span></span> (<span class="name"><span class="builtin-name">and</span></span> (<span class="name"><span class="builtin-name">not</span></span> end-p)</span><br><span class="line">                      (<span class="name">js2-name-node-p</span> node)</span><br><span class="line">                      (<span class="name">string=</span> name (<span class="name">js2-name-node-name</span> node)))</span><br><span class="line">             (<span class="name"><span class="builtin-name">let*</span></span> ((<span class="name">beg</span> (<span class="name">js2-node-abs-pos</span> node))</span><br><span class="line">                    (<span class="name">end</span> (<span class="name"><span class="builtin-name">+</span></span> beg (<span class="name">js2-node-len</span> node)))</span><br><span class="line">                    (<span class="name">new-scope</span> (<span class="name">js2-node-get-enclosing-scope</span> node))</span><br><span class="line">                    (<span class="name">new-scope</span> (<span class="name">js2-get-defining-scope</span> new-scope name)))</span><br><span class="line">               (<span class="name"><span class="builtin-name">if</span></span> (<span class="name"><span class="builtin-name">and</span></span> (<span class="name">eq</span> new-scope scope)</span><br><span class="line">                        (<span class="name"><span class="builtin-name">not</span></span> (<span class="name"><span class="builtin-name">=</span></span> beg end)))</span><br><span class="line">                   (<span class="name">progn</span></span><br><span class="line">                     (<span class="name">goto-char</span> end)</span><br><span class="line">                     (<span class="name">push-mark</span> beg)</span><br><span class="line">                     (<span class="name">exchange-point-and-mark</span>)</span><br><span class="line">                     (<span class="name"><span class="builtin-name">if</span></span> (<span class="name"><span class="builtin-name">not</span></span> (<span class="name"><span class="builtin-name">=</span></span> ref-node-beg beg))</span><br><span class="line">                         (<span class="name">mc/create-fake-cursor-at-point</span>))</span><br><span class="line">                     (<span class="name">exchange-point-and-mark</span>)</span><br><span class="line">                     ))))</span><br><span class="line"></span><br><span class="line">           t)))))</span><br><span class="line">  (<span class="name"><span class="builtin-name">if</span></span> (<span class="name"><span class="builtin-name">&gt;</span></span> (<span class="name">mc/num-cursors</span>) <span class="number">1</span>)</span><br><span class="line">      (<span class="name">multiple-cursors-mode</span> <span class="number">1</span>)</span><br><span class="line">    (<span class="name">multiple-cursors-mode</span> <span class="number">0</span>)))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>我参考了<a href="http://mihai.bazon.net/projects/editing-javascript-with-emacs-js2-mode/js2-highlight-vars-mode" target="_blank" rel="external">js2-highlight-vars.el</a>和mc/mark-all-like-this的代码。基本思<br>路就是利用js2-mode提供的api遍历ast，找到所有目标变量的引用，并进行标记。<br>需要注意一点的是，要把函数自身加入<code>mc--default-cmds-to-run-once</code>里，否<br>则会产生循环调用。</p>
+<figure class="highlight scheme"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(<span class="name">add-to-list</span> <span class="symbol">'mc--default-cmds-to-run-once</span> <span class="symbol">'sycao/js2-mark-token-at-point</span>)</span><br></pre></td></tr></table></figure>
+<p>例如用下面的代码进行测试，如果光标在第二行的localVar上，执行<br><code>sycao/js2-mark-token-at-point</code>就会标记第2、9、11行的localVar。</p>
+<figure class="highlight javascript"><figcaption><span>var localVar = 12;</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">f</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> localVar = <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">f2</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> localVar = <span class="number">20</span>;</span><br><span class="line">        localVar++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    localVar += <span class="number">1</span>;</span><br><span class="line">    f2 ();</span><br><span class="line">    localVar += <span class="number">9</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2012-12-19T10:53:00.000Z"><a href="/2012/12/19/2012-12-19-porting-slash-narcissus-slash-for-slash-nodejs/">2012-12-19</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2012/12/19/2012-12-19-porting-slash-narcissus-slash-for-slash-nodejs/">porting narcissus for nodejs</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>最近在看<a href="http://lxr.mozilla.org/mozilla/source/js/narcissus" target="_blank" rel="external">narcissus</a>的代码，这是一个js实现的js解释器。为了方便导出AST，<br>交互式的检查运行环境，于是修改了一下代码，让它可以跑在nodejs上。<br>代码放在<a href="http://github.com/sonald/node-narcissus" target="_blank" rel="external">github</a>上了，做的修改不多，主要原版年代久远，还使用了mozilla的<br>JS扩展，对这些部分进行一些修改即可。</p>
+<p>主要修改要两个方面：</p>
+<ul>
+<li>改写conditional catch clause。这个是mozilla的扩展，nodejs不支持。<br>例如<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    execute(parse(s), x2);</span><br><span class="line">&#125; <span class="keyword">catch</span> (e <span class="keyword">if</span> e == THROW) &#123;</span><br><span class="line">    x.result = x2.result;</span><br><span class="line">    <span class="keyword">throw</span> e;</span><br><span class="line">&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    ExecutionContext.current = x;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>改为<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    execute(parse(s), x2);</span><br><span class="line">&#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    <span class="keyword">if</span> (e == THROW) &#123;</span><br><span class="line">        x.result = x2.result;</span><br><span class="line">        <span class="keyword">throw</span> e;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">throw</span> e;</span><br><span class="line">    &#125;</span><br><span class="line">&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    ExecutionContext.current = x;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>RegExp对象不是callable的，<br>例如<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ((match = fpRegExp(input))) &#123;</span><br><span class="line">    token.type = NUMBER;</span><br><span class="line">    token.value = <span class="built_in">parseFloat</span>(match[<span class="number">0</span>]);</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> ((match = <span class="regexp">/^0[xX][\da-fA-F]+|^0[0-7]*|^\d+/</span>(input))) &#123;</span><br><span class="line">    ....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>改为<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ((match = fpRegExp.exec(input))) &#123;</span><br><span class="line">    token.type = NUMBER;</span><br><span class="line">    token.value = <span class="built_in">parseFloat</span>(match[<span class="number">0</span>]);</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> ((match = <span class="regexp">/^0[xX][\da-fA-F]+|^0[0-7]*|^\d+/</span>.exec(input))) &#123;</span><br><span class="line">    ....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>另外，添加了一些原代码运行需要的函数的实现，print、snarf和__defineProperty__。<br>为了不影响宿主环境，所有代码都在一个新的vm上运行。</p>
+<p>需要说明的是下面这个片段，如果没有，print和snarf运行时会出错，因为被narcissus认为<br>是非callable的。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">s = <span class="string">'print.__proto__ = Function;'</span> +</span><br><span class="line">    <span class="string">'snarf.__proto__ = Function;'</span>;</span><br><span class="line">vm.runInContext(s, runtime);</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2012-12-18T05:56:00.000Z"><a href="/2012/12/18/2012-12-18-emacs-tip-search-active-region/">2012-12-18</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2012/12/18/2012-12-18-emacs-tip-search-active-region/">emacs tip: search active region</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>WebStorm有一个小功能特别好，就是当你选择一段文字之后，进行搜索，它会直接搜索选中的文字。<br>emacs的搜索功能强大，但是得在进入搜索模式后，再选择要搜索的表达式，下面的这个defadvice<br>可以达到WebStorm的效果，如果当前有活动区域，则直接搜索此区域：</p>
+<figure class="highlight scheme"><figcaption><span>search-region</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">(<span class="name">defadvice</span> isearch-forward-regexp (<span class="name">around</span> sycao/search-region)</span><br><span class="line">  <span class="string">"if there is an active region, search from it directly"</span></span><br><span class="line">  (<span class="name"><span class="builtin-name">if</span></span> (<span class="name">region-active-p</span>)</span><br><span class="line">      (<span class="name">progn</span></span><br><span class="line">        (<span class="name"><span class="builtin-name">let</span></span> ((<span class="name">beg</span> (<span class="name">region-beginning</span>))</span><br><span class="line">              (<span class="name">end</span> (<span class="name">region-end</span>)))</span><br><span class="line">          (<span class="name">deactivate-mark</span>)</span><br><span class="line">          (<span class="name">isearch-mode</span> t t nil nil)</span><br><span class="line">          (<span class="name">isearch-yank-string</span> (<span class="name">buffer-substring-no-properties</span> beg end))))</span><br><span class="line">    ad-do-it))</span><br><span class="line"></span><br><span class="line">(<span class="name">ad-activate</span> <span class="symbol">'isearch-forward-regexp</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2012-09-19T11:21:00.000Z"><a href="/2012/09/19/2012-09-19-node-exec-buffer-problem/">2012-09-19</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2012/09/19/2012-09-19-node-exec-buffer-problem/">node exec buffer problem</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>最近遇到一个诡异的问题，由于代码逻辑过于复杂，一开始还没想到是这个问题。<br>后来使用强大的<a href="https://github.com/dannycoates/node-inspector" target="_blank" rel="external">node-inspector</a>大致定位到出错的位置，经过仔细分析，<br>发现这个问题竟然出在child_process.exec的buffer上。</p>
+<p>出错的代码经过简化大致是这样的：<br><figure class="highlight js"><figcaption><span>exec_bad.js</span><a href="/downloads/code/exec_bad.js">view raw</a></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> exec = <span class="built_in">require</span>(<span class="string">'child_process'</span>).exec;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> cmd = exec(<span class="string">'mkfs.ext4 /dev/sdb2'</span>);</span><br><span class="line">cmd.stdout.on(<span class="string">'exit'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">extcode, signal</span>) </span>{</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'exit with '</span>, extcode, signal); </span><br><span class="line">});</span><br></pre></td></tr></table></figure> </p>
+<p>一般没有问题，但是如果sdb2的分区大小足够大，当格式化正在进行的过程中，会收到SIGTERM退出。<br>原因其实很简单，就是exec有一个内部的buffer来缓冲输出，默认的buffer大小是200K，所以当<br>输出大小超过时就被kill了。看child_process的代码就很清楚了：</p>
+<p>这是execFile函数的一部分，基本上就是buffer了所有的输出，在child退出时传递给callback。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">child.stdout.setEncoding(options.encoding);</span><br><span class="line">child.stderr.setEncoding(options.encoding);</span><br><span class="line"></span><br><span class="line">child.stdout.addListener(&apos;data&apos;, function(chunk) &#123;</span><br><span class="line">  stdout += chunk;</span><br><span class="line">  if (stdout.length &gt; options.maxBuffer) &#123;</span><br><span class="line">    err = new Error(&apos;maxBuffer exceeded.&apos;);</span><br><span class="line">    kill();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<p>所以只要传递一个更大的buffer就可以了：<br><figure class="highlight js"><figcaption><span>exec_well.js</span><a href="/downloads/code/exec_well.js">view raw</a></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> exec = <span class="built_in">require</span>(<span class="string">'child_process'</span>).exec;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> cmd = exec(<span class="string">'mkfs.ext4 /dev/sdb2'</span>, {maxBuffer: <span class="number">1</span>&lt;&lt;<span class="number">20</span>});</span><br><span class="line">cmd.stdout.on(<span class="string">'exit'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">extcode, signal</span>) </span>{</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'exit with '</span>, extcode, signal); </span><br><span class="line">});</span><br></pre></td></tr></table></figure> </p>
+<p>但是这种方法不容易扩展，所以如果需要更灵活的处理，用spawn比较好。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2012-08-29T02:47:00.000Z"><a href="/2012/08/29/2012-08-29-how-emacs-associate-file-with-major-mode/">2012-08-29</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2012/08/29/2012-08-29-how-emacs-associate-file-with-major-mode/">how emacs associate file with major mode</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>用了这么多年的emacs，还不知道emacs有<code>magic-mode-alist</code>和<code>interpreter-mode-alist</code>，惭愧啊。<br><a href="http://ergoemacs.org/emacs/emacs_auto-activate_a_major-mode.html" target="_blank" rel="external">这篇</a>文章对emacs如何把一个major mode关联到文件做了很好的总结，值得一读。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2012-06-11T03:07:00.000Z"><a href="/2012/06/11/2012-06-11-a-pattern-for-creating-js-object/">2012-06-11</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2012/06/11/2012-06-11-a-pattern-for-creating-js-object/">a pattern for creating js object</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>在看一些node模块的代码的时候，发现很多都会使用一种奇怪的方式构造对象。<br>比如下面这个：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">dnode</span> (<span class="params">wrapper</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!(<span class="keyword">this</span> <span class="keyword">instanceof</span> dnode)) <span class="keyword">return</span> <span class="keyword">new</span> dnode(wrapper);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.proto = protocol(wrapper);</span><br><span class="line">    <span class="keyword">this</span>.stack = [];</span><br><span class="line">    <span class="keyword">this</span>.streams = [];</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代码来自<a href="https://github.com/substack/dnode" target="_blank" rel="external">dnode</a>，它奇怪的地方是<code>if (!(this instanceof dnode)) return new dnode(wrapper);</code><br>这条语句。<br>为什么要这么写呢：其实理由很简单，为了避免js程序员们忘记在调用构造函数时前面家<code>new</code>而导致<br>污染了全局对象。<br>所以在构造时留了个心眼，如果<code>this</code>求值不是<code>dnode</code>实例，那就说明你忘记加<code>new</code>了，<br>这时候上面的保险做法可以保证正确的执行。</p>
+<p>再比如下面这个例子（从node-glob摘抄过来）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Glob</span> (<span class="params">pattern, options, cb</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!(<span class="keyword">this</span> <span class="keyword">instanceof</span> Glob)) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Glob(pattern, options, cb)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> cb === <span class="string">"function"</span>) &#123;</span><br><span class="line">    <span class="keyword">this</span>.on(<span class="string">"error"</span>, cb)</span><br><span class="line">    <span class="keyword">this</span>.on(<span class="string">"end"</span>, <span class="function"><span class="keyword">function</span> (<span class="params">matches</span>) </span>&#123;</span><br><span class="line">      <span class="comment">// console.error("cb with matches", matches)</span></span><br><span class="line">      cb(<span class="literal">null</span>, matches)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>更新：<a href="http://dailyjs.com/2012/06/11/js101-constructor-functions" target="_blank" rel="external">dailyjs上提到</a>ECMAScript 5.1计划让builtin的构造函数支持类似的用法。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2012-06-03T09:00:00.000Z"><a href="/2012/06/03/2012-06-03-connect-middleware-introduction/">2012-06-03</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2012/06/03/2012-06-03-connect-middleware-introduction/">connect middleware introduction</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p><a href="http://github.com/senchalabs/connect" target="_blank" rel="external">connect</a>是一个node的开发框架，connect作者对它做了<a href="http://howtonode.org/connect-it" target="_blank" rel="external">介绍</a>。<br>connect的精华就在于middleware堆栈,它允许你在一个请求到达或者对请求进行回复之前<br>对过程进行微调。比如，你可以写一个logger，追踪所有的URL请求，可以解析请求中的<br>query或数据等，还可以在发送回复之前对数据进行压缩以节省带宽。<a href="http://github.com/senchalabs/connect" target="_blank" rel="external">connect</a><br>默认已经提供了很丰富的middleware，也有许多第三方的<a href="https://github.com/senchalabs/connect/wiki" target="_blank" rel="external">middleware可供使用</a>，必要<br>的时候也可以自己编写。由于connect是建立在nodejs的http模块基础上的，因此倚赖<br>http模块的实现，而且得很熟悉才行。</p>
+<p>要注意的是现在express 2.x使用了connect 1.x版本，这个版本缺少一些middleware，<br>比如compress。而connect现在已经到了2.3.3版本，最近好像3.0也已见端倪，这几个<br>版本之间的middleware不一定兼容，所以交叉使用的时候可能会出现问题。</p>
+<p>比如我从connect 1.8.7拿过来的compress在使用过程中<br>发现有时候会出现<code>Can&#39;t ... after they are sent.</code>的错误，于是我在拷贝<br>过来的compress中做了一点改动，对connect的<a href="https://github.com/senchalabs/connect/blob/1.8.7/lib/patch.js" target="_blank" rel="external">patch</a>再次做了hack。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Hack, override connect 1.x patch</span></span><br><span class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>)</span><br><span class="line">, _resp = http.OutgoingMessage.prototype;</span><br><span class="line"></span><br><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (_resp._compressPatched) <span class="keyword">return</span>;</span><br><span class="line">    _resp.__defineGetter__(<span class="string">'headerSent'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>._header || <span class="keyword">this</span>._headerSent;</span><br><span class="line">    &#125;);</span><br><span class="line">    _resp._compressPatched = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">&#125;());</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
+<nav id="pagination">
+  
+    <a href="/page/2/" class="alignleft prev">Vorherige Seite</a>
+  
+  
+    <a href="/page/4/" class="alignright next">Nächste Seite</a>
+  
+  <div class="clearfix"></div>
+</nav></div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Suche">
+    <input type="hidden" name="q" value="site:sonald.me">
+  </form>
+</div>
+
+  
+
+  
+<div class="widget tag">
+  <h3 class="title">Tags</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/algorithm/">algorithm</a><small>13</small></li>
+  
+    <li><a href="/tags/android/">android</a><small>1</small></li>
+  
+    <li><a href="/tags/c/">c</a><small>1</small></li>
+  
+    <li><a href="/tags/emacs/">emacs</a><small>3</small></li>
+  
+    <li><a href="/tags/iterm2/">iterm2</a><small>2</small></li>
+  
+    <li><a href="/tags/javascript/">javascript</a><small>4</small></li>
+  
+    <li><a href="/tags/map/">map</a><small>1</small></li>
+  
+    <li><a href="/tags/mutter/">mutter</a><small>1</small></li>
+  
+    <li><a href="/tags/nepomuk/">nepomuk</a><small>1</small></li>
+  
+    <li><a href="/tags/nodejs/">nodejs</a><small>6</small></li>
+  
+    <li><a href="/tags/objc/">objc</a><small>2</small></li>
+  
+    <li><a href="/tags/octopress/">octopress</a><small>1</small></li>
+  
+    <li><a href="/tags/os/">os</a><small>1</small></li>
+  
+    <li><a href="/tags/performance/">performance</a><small>1</small></li>
+  
+    <li><a href="/tags/principle/">principle</a><small>1</small></li>
+  
+    <li><a href="/tags/programming/">programming</a><small>1</small></li>
+  
+    <li><a href="/tags/rails/">rails</a><small>1</small></li>
+  
+    <li><a href="/tags/regex/">regex</a><small>1</small></li>
+  
+    <li><a href="/tags/ruby/">ruby</a><small>1</small></li>
+  
+    <li><a href="/tags/thought/">thought</a><small>1</small></li>
+  
+    <li><a href="/tags/tip/">tip</a><small>6</small></li>
+  
+    <li><a href="/tags/utils/">utils</a><small>1</small></li>
+  
+    <li><a href="/tags/web/">web</a><small>2</small></li>
+  
+    <li><a href="/tags/wm/">wm</a><small>1</small></li>
+  
+    <li><a href="/tags/zsh/">zsh</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 Sian Cao
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>如何实现简单的POSIX信号处理 | Working funny way</title>
+  <meta name="author" content="Sian Cao">
+  
+  <meta name="description" content="这是一篇关于POSIX信号实现机制的文章，主要是基于自己的思考、sos实现以及对早期linux内核（0.11和1.0版本）的分析。这里谈论的是古老的实现方式，我不确定是否还有系统在使用类似的方法。因为这里的实现技术具有很多缺陷，在描述实现细节之后我们再来看看一些现代linux的更好的实现方式。
+我将">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="如何实现简单的POSIX信号处理"/>
+  <meta property="og:site_name" content="Working funny way"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Working funny way" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-40340886-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+    <img style="margin-right: 30px"
+        src="https://www.gravatar.com/avatar/5965dd93d497bef6e9a0b4029b0e023d">
+    </img>
+</div>
+<div class="alignleft">
+  <h1><a href="/">Working funny way</a></h1>
+  <h2><a href="/">just some random thoughts and coding related</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+      <li><a href="http://sonald.github.io/Resume">Resume</a></li>
+    
+      <li><a href="http://github.com/sonald">Github</a></li>
+    
+      <li><a href="/about">About</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2015-07-18T16:28:07.000Z"><a href="/2015/07/19/2015-07-19-how-to-implement-posix-signal-handling/">2015-07-19</a></time>
+      
+      
+  
+    <h1 class="title">如何实现简单的POSIX信号处理</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>这是一篇关于POSIX信号实现机制的文章，主要是基于自己的思考、<a href="http://github.com/sonald/sos" target="_blank" rel="external">sos</a>实现以及对早期linux内核（0.11和1.0版本）的分析。这里谈论的是古老的实现方式，我不确定是否还有系统在使用类似的方法。因为这里的实现技术具有很多缺陷，在描述实现细节之后我们再来看看一些现代linux的更好的实现方式。</p>
+<p>我将不会描述什么是信号以及如何使用信号，这方面最好的参考是UNIX环境高级编程，也可以参考<a href="https://www.nostarch.com/tlpi" title="tlpi" target="_blank" rel="external">《Linux Programming Interface》</a>这本书。信号的生命周期包括生成（generate），送达（deliver）。在这篇文章里我把重点放在deliver的实现上，更精确地说，我要通过一个具体而微的简单内核的实现来描述操作系统内核是怎么调用用户空间提前设置好的信号处理函数的。</p>
+<p>我们都知道操作系统内核和用户程序分别运行于独立的特权级。用户空间通过受限的方式（系统调用、文件读写等）访问内核资源。用户通过使用signal或sigaction系统调用来设置信号的自定义处理函数。我们都知道，POSIX信号是异步执行的（不考虑实时信号），发送信号的时刻与该信号对应的处理可能会相隔很远，具体要看是什么信号以及进程所处的状态。当信号最终被送达目标进程并被处理时，内核并不能直接调用自定义的信号处理函数，因为它所处的内存页是用户级的（准确的说其实是可以的，高特权级的代码是可以调用低特权级代码的，但由于各种安全原因并不会直接调用）。为了执行一段用户态的代码，内核需要使用一些技巧。</p>
+<p>在实现内核实施用户自定义函数时，需要考虑一些问题。首先，这种调用肯定是破坏性的。因为内核和函数处于不同的特权级（自然使用到的栈空间也不一样），没有简单的caller/callee关系，调用也不是通过通常的call指令发生的。所以要有一种方法保证执行信号处理函数前后的现场是一致的。另外，信号处理函数是可以嵌套的，用户完全可以在信号处理函数内部发送信号。我们设计的方案必须能处理这种情况。</p>
+<p>在x86系统下，如果代码要从高特权级（内核）跳转到一个低特权级（用户态）的代码段最基本的方法是手工构造一个iret调用。基本上这是所有中断服务例程返回用户态的方法。而我们实现处理函数的执行就是利用了这个iret指令。基本思路是：</p>
+<p>iret指令返回用户态时会从内核栈中弹出五个数据，分别是用户态的ss、esp、eflags，cs、eip。eip是执行系统调用的中断指令的下一条指令的地址。在正常情况下，iret将返回到eip地址处继续用户程序的执行。如果我们在iret执行前，修改了内核栈中对应eip位置的值，让其指向用户先前设置的信号处理函数的地址，那么iret返回后不就执行信号处理函数了吗。但是事情还没完，函数执行时，我们需要给它提供一个参数。而且这个函数执行完成后会返回哪里呢？合理的情况下当然是返回修改eip前，iret应该返回的位置。这么一来就清楚了，我们需要手动为信号处理函数在用户态的栈空间里建立一个栈帧，设置函数的参数和返回地址。这里有一个细节问题，那就是当我们手动建立栈帧时，势必修改了用户esp的值，而且信号处理函数有可能改动了某些寄存器的值。我们在处理函数ret之前要把现场恢复到原始状态，就好像iret是直接返回的一样。</p>
+<p>根据上面的描述，我们来看一个具体的实现，也就是<a href="http://github.com/sonald/sos" target="_blank" rel="external">sos</a>的<a href="https://github.com/sonald/sos/blob/master/kern%2Fcore%2Fsignal.cc#L216" target="_blank" rel="external">handle_signal</a>。首先要说明的，因为内核在何时deliver（即检测当前进程是否有pending的信号等待并处理）有很大的灵活性。比如linux会在每次时钟中断时检测，同时在任何中断请求结束并返回用户空间前也会检测。目前<a href="http://github.com/sonald/sos" target="_blank" rel="external">sos</a>的实现是只在系统调用返回用户空间前检测。</p>
+<p> 在实现上面的机制时，要如何保存和恢复现场，如何设置信号处理函数的调用环境等，有很多的选择性。我所使用的方法基本上跟linux 0.11版本一样（后来我看过几个其他的简单内核，其思路基本也是一样的）。这个函数目前实现不完整，但是表达了基本的要素。当检查到用户设置了自定义的处理函数时，就着手构造一个处理函数执行的环境。这段代码不长，我直接贴出来：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">uint32_t</span> oesp = regs-&gt;useresp;</span><br><span class="line"><span class="keyword">uint32_t</span>* ustack = (<span class="keyword">uint32_t</span>*)((<span class="keyword">char</span>*)oesp - <span class="keyword">sizeof</span>(<span class="keyword">sigcontext_t</span>));</span><br><span class="line"><span class="keyword">sigcontext_t</span> ctx;</span><br><span class="line">ctx.eax = regs-&gt;eax;</span><br><span class="line">ctx.ebx = regs-&gt;ebx;</span><br><span class="line">ctx.ecx = regs-&gt;ecx;</span><br><span class="line">ctx.edx = regs-&gt;edx;</span><br><span class="line">ctx.esi = regs-&gt;esi;</span><br><span class="line">ctx.edi = regs-&gt;edi;</span><br><span class="line">ctx.ebp = regs-&gt;ebp;</span><br><span class="line">ctx.uesp = regs-&gt;useresp;</span><br><span class="line">ctx.eip = regs-&gt;eip;</span><br><span class="line">ctx.sig_mask = current-&gt;sig.blocked;</span><br><span class="line"><span class="built_in">memcpy</span>(ustack, &amp;ctx, <span class="keyword">sizeof</span>(<span class="keyword">sigcontext_t</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">// trampoline code</span></span><br><span class="line"><span class="comment">// movl SYS_sigreturn, %eax</span></span><br><span class="line"><span class="comment">// int $0x80</span></span><br><span class="line"><span class="comment">// ret</span></span><br><span class="line"><span class="keyword">char</span>* code = (<span class="keyword">char</span>*)ustack - <span class="number">1</span>;</span><br><span class="line">*code-- = <span class="number">0xc3</span>; <span class="comment">// ret</span></span><br><span class="line">*code-- = <span class="number">0x80</span>;</span><br><span class="line">*code = <span class="number">0xcd</span>; <span class="comment">// int $0x80</span></span><br><span class="line">code -= <span class="number">4</span>;</span><br><span class="line">*(<span class="keyword">uint32_t</span>*)code = SYS_sigreturn;</span><br><span class="line">code--;</span><br><span class="line">*code = <span class="number">0xb8</span>;</span><br><span class="line"></span><br><span class="line">signal_dbg(<span class="string">"save at 0x%x, code at 0x%x, new eip 0x%x\n"</span>,</span><br><span class="line">        ustack, code, handler);</span><br><span class="line">ustack = (<span class="keyword">uint32_t</span>*)code - <span class="number">2</span>;</span><br><span class="line">ustack[<span class="number">0</span>] = (<span class="keyword">uint32_t</span>)code;</span><br><span class="line">ustack[<span class="number">1</span>] = sig;</span><br><span class="line">regs-&gt;eip = (<span class="keyword">uint32_t</span>)handler;</span><br><span class="line">regs-&gt;useresp = (<span class="keyword">uint32_t</span>)ustack;</span><br></pre></td></tr></table></figure>
+<p>代码很短，但是干了很多事情，我们分几个部分来看：</p>
+<ul>
+<li>首先是保存原始环境。regs指向内核栈iret返回前的中断上下文。我在用户栈的栈顶位置开辟一个空间来保存（sigcontext_t结构）。</li>
+<li>然后是一段硬编码的x86 32位代码，如注释所示，它构造了一个函数，这个函数的功能是执行一个系统调用SYS_sigreturn。如果你去看<a href="https://github.com/sonald/sos/blob/master/kern%2Fcore%2Fsignal.cc#L191" target="_blank" rel="external">sys_sigreturn</a>的代码，你就知道它是与之相对的用来恢复现场的系统调用。可以看出来，这段代码存放在用户栈中。如图所示：<img src="/images/code/posix.signal.implementation.directed.010.jpg" class="thumbnail" title="save context"></li>
+<li>最后修改了regs的eip，使其指向信号处理函数。而useresp指向新的ustack位置。ustack的栈底最后两个位置一个是信号处理函数的参数（即信号值）以及返回地址。返回地址指向了硬编码的那段代码的第一条指令的地址。于是在信号处理函数执行完成后，会跳转到上面的那段代码，该代码立即执行一个系统调用来恢复被信号处理函数改变的现场。如图所示：<img src="/images/code/posix.signal.implementation.directed.011.jpg" class="thumbnail" title="setup call"></li>
+</ul>
+<p>在信号处理函数执行完成后，会返回到并执行栈中的trampoline，从而触发一个对sigreturn的系统调用。陷入内核后，此时的栈情况如图所示：</p>
+<img src="/images/code/posix.signal.implementation.directed.012.jpg" class="thumbnail" title="restore context">
+<p>sigreturn的工作就是把保存在用户栈中上下文恢复到内核栈中对应的位置。注意，恢复后，regs里的eip指向了被信号处理函数打断的系统调用的返回地址。</p>
+<p>需要注意的是，上面的方法是不安全的，而且也不具有可移植性。现代的操作系统应该不会允许用户栈具有可执行权限（在linux下可以用cat /proc/self/maps看看[stack]区域）。而硬编码指令的做法也无法在不同的体系结构下运行。所以现代linux在恢复信号处理后的现场时，采用了其他技术（比如利用vdso和c库配合），这个需要另外一篇文章详细描述。</p>
+<p>PS：这有一个方便的查询linux系统调用的<a href="http://syscalls.kernelgrok.com" target="_blank" rel="external">网址</a>，挺方便的。</p>
+<p>PPS：<a href="http://github.com/sonald/sos" target="_blank" rel="external">sos</a>是我自己写的一个简单内核，极度不完善。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+  
+  <div class="tags">
+    <a href="/tags/os/">os</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+      <a class="addthis_button_pinterest_pinit" pi:pinit:layout="horizontal"></a>
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">Kommentare</h1>
+
+  
+      <div id="fb-root"></div>
+<script>
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=123456789012345";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<div class="fb-comments" data-href="http://sonald.me/2015/07/19/2015-07-19-how-to-implement-posix-signal-handling/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+      
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Suche">
+    <input type="hidden" name="q" value="site:sonald.me">
+  </form>
+</div>
+
+  
+
+  
+<div class="widget tag">
+  <h3 class="title">Tags</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/algorithm/">algorithm</a><small>13</small></li>
+  
+    <li><a href="/tags/android/">android</a><small>1</small></li>
+  
+    <li><a href="/tags/c/">c</a><small>1</small></li>
+  
+    <li><a href="/tags/emacs/">emacs</a><small>3</small></li>
+  
+    <li><a href="/tags/iterm2/">iterm2</a><small>2</small></li>
+  
+    <li><a href="/tags/javascript/">javascript</a><small>4</small></li>
+  
+    <li><a href="/tags/map/">map</a><small>1</small></li>
+  
+    <li><a href="/tags/mutter/">mutter</a><small>1</small></li>
+  
+    <li><a href="/tags/nepomuk/">nepomuk</a><small>1</small></li>
+  
+    <li><a href="/tags/nodejs/">nodejs</a><small>6</small></li>
+  
+    <li><a href="/tags/objc/">objc</a><small>2</small></li>
+  
+    <li><a href="/tags/octopress/">octopress</a><small>1</small></li>
+  
+    <li><a href="/tags/os/">os</a><small>1</small></li>
+  
+    <li><a href="/tags/performance/">performance</a><small>1</small></li>
+  
+    <li><a href="/tags/principle/">principle</a><small>1</small></li>
+  
+    <li><a href="/tags/programming/">programming</a><small>1</small></li>
+  
+    <li><a href="/tags/rails/">rails</a><small>1</small></li>
+  
+    <li><a href="/tags/regex/">regex</a><small>1</small></li>
+  
+    <li><a href="/tags/ruby/">ruby</a><small>1</small></li>
+  
+    <li><a href="/tags/thought/">thought</a><small>1</small></li>
+  
+    <li><a href="/tags/tip/">tip</a><small>6</small></li>
+  
+    <li><a href="/tags/utils/">utils</a><small>1</small></li>
+  
+    <li><a href="/tags/web/">web</a><small>2</small></li>
+  
+    <li><a href="/tags/wm/">wm</a><small>1</small></li>
+  
+    <li><a href="/tags/zsh/">zsh</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 Sian Cao
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

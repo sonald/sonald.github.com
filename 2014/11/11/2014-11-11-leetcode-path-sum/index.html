@@ -1,0 +1,246 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>leetcode: path sum | Working funny way</title>
+  <meta name="author" content="Sian Cao">
+  
+  <meta name="description" content="这个问题其实很简单，DFS的基础，所以我写了4个版本。第一个是递归，其实效率在4个里面算很好的，递归真的是简洁而优雅。
+123456789public:    bool hasPathSum(TreeNode *root, int sum) &amp;#123;        if (!root) retu">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="leetcode: path sum"/>
+  <meta property="og:site_name" content="Working funny way"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Working funny way" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-40340886-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+    <img style="margin-right: 30px"
+        src="https://www.gravatar.com/avatar/5965dd93d497bef6e9a0b4029b0e023d">
+    </img>
+</div>
+<div class="alignleft">
+  <h1><a href="/">Working funny way</a></h1>
+  <h2><a href="/">just some random thoughts and coding related</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+      <li><a href="http://sonald.github.io/Resume">Resume</a></li>
+    
+      <li><a href="http://github.com/sonald">Github</a></li>
+    
+      <li><a href="/about">About</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-11-11T15:04:38.000Z"><a href="/2014/11/11/2014-11-11-leetcode-path-sum/">2014-11-11</a></time>
+      
+      
+  
+    <h1 class="title">leetcode: path sum</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>这个问题其实很简单，DFS的基础，所以我写了4个版本。第一个是递归，其实效率在4个里面算很好的，递归真的是简洁而优雅。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public:</span><br><span class="line">    bool hasPathSum(TreeNode *root, int sum) &#123;</span><br><span class="line">        if (!root) return false;</span><br><span class="line">        if (!root-&gt;left &amp;&amp; !root-&gt;right) </span><br><span class="line">            return root-&gt;val == sum;</span><br><span class="line"></span><br><span class="line">        return hasPathSum(root-&gt;left, sum-root-&gt;val) || hasPathSum(root-&gt;right, sum-root-&gt;val);</span><br><span class="line">	    &#125;</span><br><span class="line">	&#125;;</span><br></pre></td></tr></table></figure>
+<p>第二个非递归版本，用sp模拟栈，accessed记录访问过的节点。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">class Solution2 &#123;</span><br><span class="line">public:</span><br><span class="line">    bool hasPathSum(TreeNode *root, int sum) &#123;</span><br><span class="line">        if (!root) return false;</span><br><span class="line"></span><br><span class="line">        std::vector&lt;TreeNode*&gt; sp;</span><br><span class="line">        unordered_map&lt;TreeNode*, bool&gt; accessed;</span><br><span class="line"></span><br><span class="line">        sp.push_back(root);</span><br><span class="line">        int len = 0;</span><br><span class="line">        while (sp.size()) &#123;    </span><br><span class="line">            auto* np = sp.back();</span><br><span class="line">            if (np-&gt;left &amp;&amp; !accessed[np-&gt;left]) &#123;</span><br><span class="line">                len += np-&gt;val;                        </span><br><span class="line">                sp.push_back(np-&gt;left);</span><br><span class="line">            &#125; else if (np-&gt;right &amp;&amp; !accessed[np-&gt;right]) &#123;</span><br><span class="line">                len += np-&gt;val;                                        </span><br><span class="line">                sp.push_back(np-&gt;right);</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                if (!np-&gt;left &amp;&amp; !np-&gt;right)</span><br><span class="line">                    if (len + np-&gt;val == sum) return true;</span><br><span class="line">                accessed[np] = true;</span><br><span class="line">                sp.pop_back();</span><br><span class="line">                if (sp.size()) len -= sp.back()-&gt;val;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>后面两个比较有意思，Solution3是一个intrusive版本，它在下降过程中修改子节点的val值，使得每个节点保存从根节点到达的路径的sum。这样，当遇到叶子节点时就知道这条路径的sum大小。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">class Solution3 &#123;</span><br><span class="line">public:</span><br><span class="line">    bool hasPathSum(TreeNode *root, int sum) &#123;</span><br><span class="line">        if (!root) return false;</span><br><span class="line"></span><br><span class="line">        std::vector&lt;TreeNode*&gt; sp;</span><br><span class="line">        sp.push_back(root);</span><br><span class="line">        while (sp.size()) &#123;    </span><br><span class="line">            auto* np = sp.back();</span><br><span class="line">            sp.pop_back();</span><br><span class="line"></span><br><span class="line">            if (!np-&gt;left &amp;&amp; !np-&gt;right) &#123;                </span><br><span class="line">                if (np-&gt;val == sum) return true;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            if (np-&gt;left) &#123;</span><br><span class="line">                np-&gt;left-&gt;val += np-&gt;val;                        </span><br><span class="line">                sp.push_back(np-&gt;left);</span><br><span class="line">            &#125;</span><br><span class="line">            if (np-&gt;right) &#123;</span><br><span class="line">                np-&gt;right-&gt;val += np-&gt;val;                                        </span><br><span class="line">                sp.push_back(np-&gt;right);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>第四个版本比较有意思，基础是morris遍历，所用得技巧跟第三版本比较类似，就是在下降过程中修改节点的val值，保存路径的sum大小。关键就是在哪几个地方做这个事情。看代码不如画图，画张图就清楚了。代码里的注释解释了一个问题，就是在找到一个解时不能直接<code>return true</code>。大概是leetcode提交环境的问题，因为morris遍历修改了每个节点的左子树的最右节点的right指向，leetcode希望树结构保持不变。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">class Solution4 &#123;</span><br><span class="line">public:</span><br><span class="line">    bool hasPathSum(TreeNode *root, int sum) &#123;</span><br><span class="line">        if (!root) return false;</span><br><span class="line"></span><br><span class="line">        bool ret = false;</span><br><span class="line">        TreeNode* nd = root;</span><br><span class="line">        while (nd) &#123;</span><br><span class="line">            if (!nd-&gt;left) &#123;</span><br><span class="line">                //NOTE: can not write `return true` here. since morris traversion modified</span><br><span class="line">                //struture of tree, we need to run over to make sure all changes restored.</span><br><span class="line">                //because of this, this may not as fast as primitive solution.</span><br><span class="line">                if (!nd-&gt;right &amp;&amp; nd-&gt;val == sum) ret = true;</span><br><span class="line">                if (nd-&gt;right) nd-&gt;right-&gt;val += nd-&gt;val;                </span><br><span class="line">                nd = nd-&gt;right;</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                auto* l = nd-&gt;left;</span><br><span class="line">                while (l-&gt;right &amp;&amp; l-&gt;right != nd) l = l-&gt;right;</span><br><span class="line">                if (l-&gt;right == nd) &#123;</span><br><span class="line">                    if (!l-&gt;left &amp;&amp; l-&gt;val == sum) ret = true;                                                                        </span><br><span class="line">                    nd = nd-&gt;right;</span><br><span class="line">                    l-&gt;right = nullptr;</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    nd-&gt;left-&gt;val += nd-&gt;val;                    </span><br><span class="line">                    if (nd-&gt;right) nd-&gt;right-&gt;val += nd-&gt;val;                    </span><br><span class="line">                    l-&gt;right = nd;</span><br><span class="line">                    nd = nd-&gt;left;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return ret;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+  
+  <div class="tags">
+    <a href="/tags/algorithm/">algorithm</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+      <a class="addthis_button_pinterest_pinit" pi:pinit:layout="horizontal"></a>
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">Kommentare</h1>
+
+  
+      <div id="fb-root"></div>
+<script>
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=123456789012345";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<div class="fb-comments" data-href="http://sonald.me/2014/11/11/2014-11-11-leetcode-path-sum/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+      
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Suche">
+    <input type="hidden" name="q" value="site:sonald.me">
+  </form>
+</div>
+
+  
+
+  
+<div class="widget tag">
+  <h3 class="title">Tags</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/algorithm/">algorithm</a><small>13</small></li>
+  
+    <li><a href="/tags/android/">android</a><small>1</small></li>
+  
+    <li><a href="/tags/c/">c</a><small>1</small></li>
+  
+    <li><a href="/tags/emacs/">emacs</a><small>3</small></li>
+  
+    <li><a href="/tags/iterm2/">iterm2</a><small>2</small></li>
+  
+    <li><a href="/tags/javascript/">javascript</a><small>4</small></li>
+  
+    <li><a href="/tags/map/">map</a><small>1</small></li>
+  
+    <li><a href="/tags/mutter/">mutter</a><small>1</small></li>
+  
+    <li><a href="/tags/nepomuk/">nepomuk</a><small>1</small></li>
+  
+    <li><a href="/tags/nodejs/">nodejs</a><small>6</small></li>
+  
+    <li><a href="/tags/objc/">objc</a><small>2</small></li>
+  
+    <li><a href="/tags/octopress/">octopress</a><small>1</small></li>
+  
+    <li><a href="/tags/os/">os</a><small>1</small></li>
+  
+    <li><a href="/tags/performance/">performance</a><small>1</small></li>
+  
+    <li><a href="/tags/principle/">principle</a><small>1</small></li>
+  
+    <li><a href="/tags/programming/">programming</a><small>1</small></li>
+  
+    <li><a href="/tags/rails/">rails</a><small>1</small></li>
+  
+    <li><a href="/tags/regex/">regex</a><small>1</small></li>
+  
+    <li><a href="/tags/ruby/">ruby</a><small>1</small></li>
+  
+    <li><a href="/tags/thought/">thought</a><small>1</small></li>
+  
+    <li><a href="/tags/tip/">tip</a><small>6</small></li>
+  
+    <li><a href="/tags/utils/">utils</a><small>1</small></li>
+  
+    <li><a href="/tags/web/">web</a><small>2</small></li>
+  
+    <li><a href="/tags/wm/">wm</a><small>1</small></li>
+  
+    <li><a href="/tags/zsh/">zsh</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 Sian Cao
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

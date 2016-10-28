@@ -1,0 +1,628 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Seite 2 | Working funny way</title>
+  <meta name="author" content="Sian Cao">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+  <meta property="og:site_name" content="Working funny way"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Working funny way" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-40340886-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+    <img style="margin-right: 30px"
+        src="https://www.gravatar.com/avatar/5965dd93d497bef6e9a0b4029b0e023d">
+    </img>
+</div>
+<div class="alignleft">
+  <h1><a href="/">Working funny way</a></h1>
+  <h2><a href="/">just some random thoughts and coding related</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+      <li><a href="http://sonald.github.io/Resume">Resume</a></li>
+    
+      <li><a href="http://github.com/sonald">Github</a></li>
+    
+      <li><a href="/about">About</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper">
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-11-11T15:04:38.000Z"><a href="/2014/11/11/2014-11-11-leetcode-path-sum/">2014-11-11</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2014/11/11/2014-11-11-leetcode-path-sum/">leetcode: path sum</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>这个问题其实很简单，DFS的基础，所以我写了4个版本。第一个是递归，其实效率在4个里面算很好的，递归真的是简洁而优雅。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public:</span><br><span class="line">    bool hasPathSum(TreeNode *root, int sum) &#123;</span><br><span class="line">        if (!root) return false;</span><br><span class="line">        if (!root-&gt;left &amp;&amp; !root-&gt;right) </span><br><span class="line">            return root-&gt;val == sum;</span><br><span class="line"></span><br><span class="line">        return hasPathSum(root-&gt;left, sum-root-&gt;val) || hasPathSum(root-&gt;right, sum-root-&gt;val);</span><br><span class="line">	    &#125;</span><br><span class="line">	&#125;;</span><br></pre></td></tr></table></figure>
+<p>第二个非递归版本，用sp模拟栈，accessed记录访问过的节点。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">class Solution2 &#123;</span><br><span class="line">public:</span><br><span class="line">    bool hasPathSum(TreeNode *root, int sum) &#123;</span><br><span class="line">        if (!root) return false;</span><br><span class="line"></span><br><span class="line">        std::vector&lt;TreeNode*&gt; sp;</span><br><span class="line">        unordered_map&lt;TreeNode*, bool&gt; accessed;</span><br><span class="line"></span><br><span class="line">        sp.push_back(root);</span><br><span class="line">        int len = 0;</span><br><span class="line">        while (sp.size()) &#123;    </span><br><span class="line">            auto* np = sp.back();</span><br><span class="line">            if (np-&gt;left &amp;&amp; !accessed[np-&gt;left]) &#123;</span><br><span class="line">                len += np-&gt;val;                        </span><br><span class="line">                sp.push_back(np-&gt;left);</span><br><span class="line">            &#125; else if (np-&gt;right &amp;&amp; !accessed[np-&gt;right]) &#123;</span><br><span class="line">                len += np-&gt;val;                                        </span><br><span class="line">                sp.push_back(np-&gt;right);</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                if (!np-&gt;left &amp;&amp; !np-&gt;right)</span><br><span class="line">                    if (len + np-&gt;val == sum) return true;</span><br><span class="line">                accessed[np] = true;</span><br><span class="line">                sp.pop_back();</span><br><span class="line">                if (sp.size()) len -= sp.back()-&gt;val;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>后面两个比较有意思，Solution3是一个intrusive版本，它在下降过程中修改子节点的val值，使得每个节点保存从根节点到达的路径的sum。这样，当遇到叶子节点时就知道这条路径的sum大小。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">class Solution3 &#123;</span><br><span class="line">public:</span><br><span class="line">    bool hasPathSum(TreeNode *root, int sum) &#123;</span><br><span class="line">        if (!root) return false;</span><br><span class="line"></span><br><span class="line">        std::vector&lt;TreeNode*&gt; sp;</span><br><span class="line">        sp.push_back(root);</span><br><span class="line">        while (sp.size()) &#123;    </span><br><span class="line">            auto* np = sp.back();</span><br><span class="line">            sp.pop_back();</span><br><span class="line"></span><br><span class="line">            if (!np-&gt;left &amp;&amp; !np-&gt;right) &#123;                </span><br><span class="line">                if (np-&gt;val == sum) return true;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            if (np-&gt;left) &#123;</span><br><span class="line">                np-&gt;left-&gt;val += np-&gt;val;                        </span><br><span class="line">                sp.push_back(np-&gt;left);</span><br><span class="line">            &#125;</span><br><span class="line">            if (np-&gt;right) &#123;</span><br><span class="line">                np-&gt;right-&gt;val += np-&gt;val;                                        </span><br><span class="line">                sp.push_back(np-&gt;right);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>第四个版本比较有意思，基础是morris遍历，所用得技巧跟第三版本比较类似，就是在下降过程中修改节点的val值，保存路径的sum大小。关键就是在哪几个地方做这个事情。看代码不如画图，画张图就清楚了。代码里的注释解释了一个问题，就是在找到一个解时不能直接<code>return true</code>。大概是leetcode提交环境的问题，因为morris遍历修改了每个节点的左子树的最右节点的right指向，leetcode希望树结构保持不变。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">class Solution4 &#123;</span><br><span class="line">public:</span><br><span class="line">    bool hasPathSum(TreeNode *root, int sum) &#123;</span><br><span class="line">        if (!root) return false;</span><br><span class="line"></span><br><span class="line">        bool ret = false;</span><br><span class="line">        TreeNode* nd = root;</span><br><span class="line">        while (nd) &#123;</span><br><span class="line">            if (!nd-&gt;left) &#123;</span><br><span class="line">                //NOTE: can not write `return true` here. since morris traversion modified</span><br><span class="line">                //struture of tree, we need to run over to make sure all changes restored.</span><br><span class="line">                //because of this, this may not as fast as primitive solution.</span><br><span class="line">                if (!nd-&gt;right &amp;&amp; nd-&gt;val == sum) ret = true;</span><br><span class="line">                if (nd-&gt;right) nd-&gt;right-&gt;val += nd-&gt;val;                </span><br><span class="line">                nd = nd-&gt;right;</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                auto* l = nd-&gt;left;</span><br><span class="line">                while (l-&gt;right &amp;&amp; l-&gt;right != nd) l = l-&gt;right;</span><br><span class="line">                if (l-&gt;right == nd) &#123;</span><br><span class="line">                    if (!l-&gt;left &amp;&amp; l-&gt;val == sum) ret = true;                                                                        </span><br><span class="line">                    nd = nd-&gt;right;</span><br><span class="line">                    l-&gt;right = nullptr;</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    nd-&gt;left-&gt;val += nd-&gt;val;                    </span><br><span class="line">                    if (nd-&gt;right) nd-&gt;right-&gt;val += nd-&gt;val;                    </span><br><span class="line">                    l-&gt;right = nd;</span><br><span class="line">                    nd = nd-&gt;left;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return ret;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-10-30T14:18:03.000Z"><a href="/2014/10/30/2014-10-30-leetcode-n-queens/">2014-10-30</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2014/10/30/2014-10-30-leetcode-n-queens/">leetcode: n queens</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>这个题基本没什么好说的了，经典回溯算法。主要问题在于如何快速剪支。我使用了三个数组来追踪每列，每条对角线以及反向对角线上是否有冲突。看了几个网上的实现，都是在放置一个皇后之后，通过计算两个坐标是否同线来判断是否（反）对角线冲突。而我是直接计算出皇后所处位置的对角线（用一个数来表示）。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Solution &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt; cols;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt; diags;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt; rdiags;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; &gt; solveNQueens(<span class="keyword">int</span> n) &#123;</span><br><span class="line">        cols = <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt;(n, <span class="literal">false</span>);</span><br><span class="line">        diags = <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt;(n, <span class="literal">false</span>);</span><br><span class="line">        rdiags = <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt;(n, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&gt; res;</span><br><span class="line">        <span class="keyword">if</span> (n &lt;= <span class="number">0</span>) <span class="keyword">return</span> res;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; ans(n, <span class="built_in">string</span>(n, <span class="string">'.'</span>));</span><br><span class="line">        solve(res, ans, n, <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">solve</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&gt;&amp; res, <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&amp; board, <span class="keyword">int</span> n, <span class="keyword">int</span> row)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (row == n) &#123;</span><br><span class="line">            res.push_back((board));</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> d = row + i, rd = n - <span class="number">1</span> - row + i;</span><br><span class="line">            <span class="keyword">if</span> (!cols[i] &amp;&amp; !diags[d] &amp;&amp; !rdiags[rd]) &#123;</span><br><span class="line">                board[row][i] = <span class="string">'Q'</span>;</span><br><span class="line">                cols[i] = diags[d] = rdiags[rd] = <span class="literal">true</span>;</span><br><span class="line">                solve(res, board, n, row+<span class="number">1</span>);</span><br><span class="line">                cols[i] = diags[d] = rdiags[rd] = <span class="literal">false</span>;</span><br><span class="line">                board[row][i] = <span class="string">'.'</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-10-28T10:42:06.000Z"><a href="/2014/10/28/2014-10-28-leetcode-first-missing-positive/">2014-10-28</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2014/10/28/2014-10-28-leetcode-first-missing-positive/">leetcode: first missing positive</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>今天晚上又脑洞打开，一把年纪了，数学成了我的短处。昨天晚上一边看优酷一边解<a href="https://oj.leetcode.com/problems/first-missing-positive/" target="_blank" rel="external">First Missing Positive</a>，没想出来怎么在常量空间或者O(n)里处理这个问题。今天晚上突然想到一个绝妙的算法。十分钟左右搞定。</p>
+<p>思想很简单：把每个数字A[i]挪到非递减排序后内所应在的位置上。如果数字不在(0, n]之间就跳过。比如<code>[2, 3, 7, -1, 4]</code>，按照排序顺序重新放置并忽略不在(0, n]范围内的数字就变成<code>[2, 2, 3, 4, 4]了</code>。然后就清楚了，再遍历一次新数组，第一个不满足条件<code>A[i] != i+1</code>的就是答案。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Solution &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">firstMissingPositive</span><span class="params">(<span class="keyword">int</span> A[], <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (A[i] &lt;= <span class="number">0</span> || A[i] &gt; n) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125; </span><br><span class="line"></span><br><span class="line">            <span class="keyword">int</span> k = A[i];</span><br><span class="line">            <span class="keyword">int</span> p = A[k<span class="number">-1</span>];</span><br><span class="line">            <span class="keyword">while</span> (k != p) &#123;</span><br><span class="line">                A[k<span class="number">-1</span>] = k;</span><br><span class="line">                k = p;</span><br><span class="line">                <span class="keyword">if</span> (p &gt; n || p &lt;= <span class="number">0</span>) <span class="keyword">break</span>;</span><br><span class="line">                p = A[k<span class="number">-1</span>];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (A[i] != i+<span class="number">1</span>) <span class="keyword">return</span> i+<span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> n+<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>我在网上看了下，这个同学跟我的<a href="http://yucoding.blogspot.com/2013/01/leetcode-question-28-first-missing.html" target="_blank" rel="external">思路</a>是一样的，不知道还有没有其他好的算法。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-10-24T01:40:01.000Z"><a href="/2014/10/24/2014-10-24-leetcode-maximal-rectangle/">2014-10-24</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2014/10/24/2014-10-24-leetcode-maximal-rectangle/">leetcode maximal rectangle</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>算法思路想到之后发现其实还是很简单的，算法复杂度是O(n*m)，基本上只要扫描两遍矩阵就能得到结果。<br>算法分两步：</p>
+<ul>
+<li>首先扫描一遍做预处理，生成一个新矩阵M1。M1[i][j]代表第j列上从i行到0行连续的‘1’的个数。<br>比如一个这样的原矩阵</li>
+</ul>
+<pre><code>{&apos;0&apos;, &apos;0&apos;, &apos;0&apos;, &apos;1&apos;, &apos;0&apos;},
+{&apos;1&apos;, &apos;0&apos;, &apos;1&apos;, &apos;1&apos;, &apos;0&apos;},
+{&apos;1&apos;, &apos;1&apos;, &apos;0&apos;, &apos;1&apos;, &apos;1&apos;},
+{&apos;1&apos;, &apos;1&apos;, &apos;1&apos;, &apos;1&apos;, &apos;0&apos;},
+{&apos;0&apos;, &apos;1&apos;, &apos;1&apos;, &apos;1&apos;, &apos;0&apos;}
+</code></pre><p>经过预处理变成</p>
+<pre><code>{0, 0, 0, 0, 0, 0},
+{0, 0, 0, 0, 1, 0}，
+{0, 1, 0, 1, 2, 0}，
+{0, 2, 1, 0, 3, 1},
+{0, 3, 2, 1, 4, 0},
+{0, 0, 3, 2, 5, 0}
+</code></pre><p>注意我把M1矩阵增广了（augmented），第一行和第一列全空，这样的目的是方便后面的遍历算法边界条件处理更容易。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">      <span class="keyword">int</span> rows = matrix.size(), cols = matrix[<span class="number">0</span>].size();</span><br><span class="line">      <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; collect(rows+<span class="number">1</span>, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(cols+<span class="number">1</span>, <span class="number">0</span>));</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= rows; i++) &#123;</span><br><span class="line">          <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= cols; j++) &#123;</span><br><span class="line">              <span class="keyword">if</span> (matrix[i<span class="number">-1</span>][j<span class="number">-1</span>] == <span class="string">'1'</span>) &#123;</span><br><span class="line">                  collect[i][j] = collect[i<span class="number">-1</span>][j] + <span class="number">1</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">```   </span><br><span class="line"></span><br><span class="line">* 按行遍历M1矩阵</span><br><span class="line">    </span><br><span class="line">    在遍历一行的第j列时，我们要实时计算出当前最大的全<span class="number">1</span>子矩阵的面积。为此，我使用一个栈来记录一些状态。这个栈的每一项是一个pair（`<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;pair&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt;&gt; sp;`）。second记录列号，first是所指列的高度。这个栈追踪从当前离j列最近的一个高度为<span class="number">0</span>的列开始，到j列的所有高度低于j列的列的信息（高度大于j列的列都从栈里弹出了）。因此这个栈里的元素是按高度单调递增的（从栈底至栈顶）。这个栈的作用是用来计算包含当前行的j列的所有全<span class="number">1</span>子矩阵的大小。不记录高度大于j列的列是因为它的宽度肯定为<span class="number">1</span>，已经在遍历到达j列之前做为全<span class="number">1</span>子矩阵计算过了。</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">```c++</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= rows; ++i) &#123;</span><br><span class="line">            <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;pair&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt;&gt; sp; <span class="comment">// &lt;high, index&gt;</span></span><br><span class="line">            sp.emplace_back(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= cols; j++) &#123;</span><br><span class="line">            <span class="keyword">int</span> k = collect[i][j];</span><br><span class="line">            <span class="keyword">while</span> (sp.size() &amp;&amp; sp.back().first &gt;= k) &#123;</span><br><span class="line">                sp.pop_back();</span><br><span class="line">            &#125;</span><br><span class="line">            sp.emplace_back(k, j);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> p = <span class="number">1</span>; p &lt; sp.size(); p++) &#123;</span><br><span class="line">                <span class="keyword">auto</span> h = sp[p].first;</span><br><span class="line">                <span class="keyword">auto</span> w = j - sp[p<span class="number">-1</span>].second;</span><br><span class="line">                <span class="keyword">if</span> (max &lt; w * h) &#123;</span><br><span class="line">                    max = w * h;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-10-17T07:24:52.000Z"><a href="/2013/10/17/2013-10-17-objective-c-fast-enumeration/">2013-10-17</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/10/17/2013-10-17-objective-c-fast-enumeration/">Objective C fast enumeration</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>了解Objective C的都知道，Objective C在C原有的for基础上增加了一个新的语言特性<em>fast enumeration</em>。<a href="https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/ProgrammingWithObjectiveC/FoundationTypesandCollections/FoundationTypesandCollections.html#//apple_ref/doc/uid/TP40011210-CH7-SW28" target="_blank" rel="external">官方文档</a>里提到<em>fast enumeration</em>要比使用NSEnumerator快，我想不是很多人知道或者想过为什么<em>fast enumeration</em>会更快。</p>
+<p>首先，一个Objective C的类要支持<em>fast enumeration</em>就必须实现<strong>NSFastEnumeration</strong>协议。这个协议只有一个方法<strong>countByEnumeratingWithState:objects:count:</strong>，官方文档写的不太清楚，估计只看这个没人知道怎么自己实现一个支持<em>fast enumeration</em>的类。我们可以看看GNUStep里<a href="http://code.ohloh.net/file?fid=rBQ8ejiDJHQ_lQYdK8w5SEehznQ&amp;cid=UA1S9WRENpI&amp;s=NSArray%20&amp;pp=0&amp;fp=296183&amp;ff=1&amp;filterChecked=true&amp;mp=1&amp;ml=1&amp;me=1&amp;md=1#L1" target="_blank" rel="external">NSArray</a>的实现作为参考（Cocoa框架不开源）：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- (<span class="built_in">NSUInteger</span>) countByEnumeratingWithState: (<span class="built_in">NSFastEnumerationState</span>*)state</span><br><span class="line">				   objects: (__unsafe_unretained <span class="keyword">id</span>[])stackbuf</span><br><span class="line">				     count: (<span class="built_in">NSUInteger</span>)len</span><br><span class="line">&#123;</span><br><span class="line">  <span class="built_in">NSUInteger</span> size = [<span class="keyword">self</span> count];</span><br><span class="line">  <span class="built_in">NSInteger</span> count;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* This is cached in the caller at the start and compared at each</span><br><span class="line">   * iteration.   If it changes during the iteration then</span><br><span class="line">   * objc_enumerationMutation() will be called, throwing an exception.</span><br><span class="line">   */</span></span><br><span class="line">  state-&gt;mutationsPtr = (<span class="keyword">unsigned</span> <span class="keyword">long</span> *)size;</span><br><span class="line">  count = MIN(len, size - state-&gt;state);</span><br><span class="line">  <span class="comment">/* If a mutation has occurred then it's possible that we are being asked to</span><br><span class="line">   * get objects from after the end of the array.  Don't pass negative values</span><br><span class="line">   * to memcpy.</span><br><span class="line">   */</span></span><br><span class="line">  <span class="keyword">if</span> (count &gt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      IMP	imp = [<span class="keyword">self</span> methodForSelector: <span class="keyword">@selector</span>(objectAtIndex:)];</span><br><span class="line">      <span class="keyword">int</span>	p = state-&gt;state;</span><br><span class="line">      <span class="keyword">int</span>	i;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; count; i++, p++)</span><br><span class="line">	&#123;</span><br><span class="line">	  stackbuf[i] = (*imp)(<span class="keyword">self</span>, <span class="keyword">@selector</span>(objectAtIndex:), p);</span><br><span class="line">	&#125;</span><br><span class="line">      state-&gt;state += count;</span><br><span class="line">    &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      count = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  state-&gt;itemsPtr = stackbuf;</span><br><span class="line">  <span class="keyword">return</span> count;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代码很简单，就是从数组中取出连续的一部分，通过参数state传给调用者。这个函数会被编译器生成的代码调用。</p>
+<p>下面一段简单的代码使用了<strong>fast enumeration</strong>：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">void</span> fastEnum()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSArray</span> *arr = @[<span class="string">@"one"</span>, <span class="string">@"two"</span>, <span class="string">@"three"</span>];</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">id</span> s <span class="keyword">in</span> arr) &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"val: %@"</span>, s);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译器生成的代码大概是这样的：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">void</span> fastEnum()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">NSArray</span> *arr = ((<span class="built_in">NSArray</span> *(*)(<span class="keyword">id</span>, SEL, <span class="keyword">const</span> <span class="keyword">id</span> *, <span class="built_in">NSUInteger</span>))(<span class="keyword">void</span> *)objc_msgSend)(</span><br><span class="line">            objc_getClass(<span class="string">"NSArray"</span>),</span><br><span class="line">            sel_registerName(<span class="string">"arrayWithObjects:count:"</span>),</span><br><span class="line">            (<span class="keyword">const</span> <span class="keyword">id</span> *)__<span class="built_in">NSContainer_literal</span>(<span class="number">3</span>U,</span><br><span class="line">                (<span class="built_in">NSString</span> *)&amp;__<span class="built_in">NSConstantStringImpl__var_folders_c4_mzdkvk5n677bsntjw9d7qtzw0000gn_T_Untitled_9O7vfS_mi_0</span>,</span><br><span class="line">                (<span class="built_in">NSString</span> *)&amp;__<span class="built_in">NSConstantStringImpl__var_folders_c4_mzdkvk5n677bsntjw9d7qtzw0000gn_T_Untitled_9O7vfS_mi_1</span>,</span><br><span class="line">                (<span class="built_in">NSString</span> *)&amp;__<span class="built_in">NSConstantStringImpl__var_folders_c4_mzdkvk5n677bsntjw9d7qtzw0000gn_T_Untitled_9O7vfS_mi_2</span>).arr,</span><br><span class="line">            <span class="number">3</span>U);</span><br><span class="line">    </span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">id</span> s;</span><br><span class="line">	<span class="keyword">struct</span> __objcFastEnumerationState enumState = &#123; <span class="number">0</span> &#125;;</span><br><span class="line">	<span class="keyword">id</span> __rw_items[<span class="number">16</span>];</span><br><span class="line">	<span class="keyword">id</span> l_collection = (<span class="keyword">id</span>) arr;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> limit =</span><br><span class="line">		((<span class="keyword">unsigned</span> <span class="keyword">int</span> (*) (<span class="keyword">id</span>, SEL, <span class="keyword">struct</span> __objcFastEnumerationState *, <span class="keyword">id</span> *, <span class="keyword">unsigned</span> <span class="keyword">int</span>))(<span class="keyword">void</span> *)objc_msgSend)</span><br><span class="line">		((<span class="keyword">id</span>)l_collection,</span><br><span class="line">		sel_registerName(<span class="string">"countByEnumeratingWithState:objects:count:"</span>),</span><br><span class="line">		&amp;enumState, (<span class="keyword">id</span> *)__rw_items, (<span class="keyword">unsigned</span> <span class="keyword">int</span>)<span class="number">16</span>);</span><br><span class="line">	<span class="keyword">if</span> (limit) &#123;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> startMutations = *enumState.mutationsPtr;</span><br><span class="line">	<span class="keyword">do</span> &#123;</span><br><span class="line">		<span class="keyword">unsigned</span> <span class="keyword">long</span> counter = <span class="number">0</span>;</span><br><span class="line">		<span class="keyword">do</span> &#123;</span><br><span class="line">			<span class="keyword">if</span> (startMutations != *enumState.mutationsPtr)</span><br><span class="line">				objc_enumerationMutation(l_collection);</span><br><span class="line">			s = (<span class="keyword">id</span>)enumState.itemsPtr[counter++]; &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>((<span class="built_in">NSString</span> *)&amp;__<span class="built_in">NSConstantStringImpl__var_folders_c4_mzdkvk5n677bsntjw9d7qtzw0000gn_T_Untitled_9O7vfS_mi_3</span>, s);</span><br><span class="line">    &#125;;</span><br><span class="line">	__continue_label_1: ;</span><br><span class="line">		&#125; <span class="keyword">while</span> (counter &lt; limit);</span><br><span class="line">	&#125; <span class="keyword">while</span> (limit = ((<span class="keyword">unsigned</span> <span class="keyword">int</span> (*) (<span class="keyword">id</span>, SEL, <span class="keyword">struct</span> __objcFastEnumerationState *, <span class="keyword">id</span> *, <span class="keyword">unsigned</span> <span class="keyword">int</span>))(<span class="keyword">void</span> *)objc_msgSend)</span><br><span class="line">		((<span class="keyword">id</span>)l_collection,</span><br><span class="line">		sel_registerName(<span class="string">"countByEnumeratingWithState:objects:count:"</span>),</span><br><span class="line">		&amp;enumState, (<span class="keyword">id</span> *)__rw_items, (<span class="keyword">unsigned</span> <span class="keyword">int</span>)<span class="number">16</span>));</span><br><span class="line">	s = ((<span class="keyword">id</span>)<span class="number">0</span>);</span><br><span class="line">	__break_label_1: ;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		s = ((<span class="keyword">id</span>)<span class="number">0</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这段代码是通过<code>clang -x objective-c -fobjc-arc -rewrite-objc test.m</code>生成的，去掉其他框架代码，只留下fastEnum的实现。<br>对比一下，可以看到，编译器生成了两层while循环，外层循环每次调用<strong>countByEnumeratingWithState:objects:count:</strong>读取16个连续的对象，内层循环逐个访问对象并检查集合是否发生了修改（如果发生了修改，则调用<strong>objc_enumerationMutation</strong>抛出异常）。<strong>fast enumeration</strong>性能的关键是<strong>countByEnumeratingWithState:objects:count:</strong>如何快速批量读取连续的对象。但是如果是像GNUStep里的实现，在性能上就不会有太大的优势。因为使用了objectAtIndex逐个取出对象，这跟NSEnumerator取出对象的方法类似。所以我估计苹果在自己的实现中使用了一些技巧，能够直接访问到NSArray的内部数据，而不是通过objactAtIndex逐个读取。</p>
+<p>这里有一个<a href="http://darkdust.net/writings/objective-c/nsarray-enumeration-performance" target="_blank" rel="external">性能测试</a>，可以看到当集合里的对象数量足够多的时候，<strong>fast enumeration</strong>的优势还是很明显的。</p>
+<p>PS: <a href="http://www.mikeash.com/pyblog/friday-qa-2010-04-16-implementing-fast-enumeration.html" target="_blank" rel="external">这里</a>有一个如何在自定义类中实现MSFastEnumeration的说明，可以对如何合理的实现<strong>countByEnumeratingWithState:objects:count:</strong>有一个认识。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-06-16T15:04:33.000Z"><a href="/2013/06/16/2013-06-16-thompson-nfa-a-tale-of-fast-re/">2013-06-16</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/06/16/2013-06-16-thompson-nfa-a-tale-of-fast-re/">thompson nfa: a tale of fast RE</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>最近看了Russ Cox大神关于正则的<a href="http://swtch.com/~rsc/regexp/regexp1.html" target="_blank" rel="external">文章</a>。深深的被打动了。仔细看完文章之后，一时兴起，自己鼓捣了一个实现，然后再看他的代码，还是不得不佩服大神对C指针的运用。</p>
+<h2 id="Russ-Cox在实现时用到的一些指针技巧"><a href="#Russ-Cox在实现时用到的一些指针技巧" class="headerlink" title="Russ Cox在实现时用到的一些指针技巧"></a>Russ Cox在实现时用到的一些指针技巧</h2><ul>
+<li>在<a href="http://swtch.com/~rsc/regexp/nfa.c.txt" target="_blank" rel="external">nfa</a>的实现中，最有意思的地方就是PtrList的定义。一般我们在定义一个单项链表时都会定义成一个结构struct，但是在这里它被定义成union。在C中，一个union中的所有成员是共享一个地址的，怎么能表示一个链表结构呢？仔细分析后，一切就很清楚了。这里之所以可以用union的前提是基于这样一个事实，即：一个Frag中的PtrList成员所指向的是State结构中out或者out1指针的地址，在调用patch之前它的值是NULL。list1中在根据一个outp指针构造一个PtrList时是直接将其强制转换为一个PtrList。因为这个outp是某个State的out或out1的地址，还没有跟其他State连接起来（通过patch操作连接），所以这么做不会影响任何现有State对象。这个非常trick的设计需要对PtrList的作用和使用方式（在post2nfa函数中）有很深的理解。我在自己实现的时候没有使用这样的方式，目的主要是为了清晰可读。</li>
+</ul>
+<figure class="highlight cpp"><figcaption><span>PtrList</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span><br><span class="line"> * Since the out pointers in the list are always </span><br><span class="line"> * uninitialized, we use the pointers themselves</span><br><span class="line"> * as storage for the Ptrlists.</span><br><span class="line"> */</span></span><br><span class="line"><span class="keyword">union</span> Ptrlist</span><br><span class="line">&#123;</span><br><span class="line">	Ptrlist *next;</span><br><span class="line">	State *s;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Create singleton list containing just outp. */</span></span><br><span class="line"><span class="function">Ptrlist*</span><br><span class="line"><span class="title">list1</span><span class="params">(State **outp)</span></span><br><span class="line"></span>&#123;</span><br><span class="line">	Ptrlist *l;</span><br><span class="line">	</span><br><span class="line">	l = (Ptrlist*)outp;</span><br><span class="line">	l-&gt;next = <span class="literal">NULL</span>;</span><br><span class="line">	<span class="keyword">return</span> l;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>在<a href="http://swtch.com/~rsc/regexp/dfa0.c.txt" target="_blank" rel="external">dfa</a>的<code>dstate</code>函数实现中，当分配一个DState的内存空间时，不仅分配了DState结构体本身的内存，同时还分配了List结构中State列表的内存。这么做减少了内存分配的碎片。</li>
+</ul>
+<figure class="highlight cpp"><figcaption><span>dstate</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* allocate, initialize new DState */</span></span><br><span class="line">d = <span class="built_in">malloc</span>(<span class="keyword">sizeof</span> *d + l-&gt;n*<span class="keyword">sizeof</span> l-&gt;s[<span class="number">0</span>]);</span><br><span class="line"><span class="built_in">memset</span>(d, <span class="number">0</span>, <span class="keyword">sizeof</span> *d);</span><br><span class="line">d-&gt;l.s = (State**)(d+<span class="number">1</span>);</span><br><span class="line">memmove(d-&gt;l.s, l-&gt;s, l-&gt;n*<span class="keyword">sizeof</span> l-&gt;s[<span class="number">0</span>]);</span><br><span class="line">d-&gt;l.n = l-&gt;n;</span><br></pre></td></tr></table></figure>    
+<ul>
+<li><a href="http://swtch.com/~rsc/regexp/dfa0.c.txt" target="_blank" rel="external">dfa1</a>的实现加入了受控的内存使用，即只缓存特定数量的DFA状态，如果超出限制将回收当前分配的所以DState对象，回收的方法很有技巧，核心如下面的两个函数所示：</li>
+</ul>
+<figure class="highlight cpp"><figcaption><span>freestates</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Free the tree of states rooted at d. */</span></span><br><span class="line"><span class="function"><span class="keyword">void</span></span><br><span class="line"><span class="title">freestates</span><span class="params">(DState *d)</span></span><br><span class="line"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(d == <span class="literal">NULL</span>)</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	freestates(d-&gt;left);</span><br><span class="line">	freestates(d-&gt;right);</span><br><span class="line">	d-&gt;left = freelist;</span><br><span class="line">	freelist = d;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Throw away the cache and start over. */</span></span><br><span class="line"><span class="function"><span class="keyword">void</span></span><br><span class="line"><span class="title">freecache</span><span class="params">(<span class="keyword">void</span>)</span></span><br><span class="line"></span>&#123;</span><br><span class="line">	freestates(alldstates);</span><br><span class="line">	alldstates = <span class="literal">NULL</span>;</span><br><span class="line">	nstates = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>也即回收之后并没用free掉之前分配的内存，而是转而将所有DState构造成一个单项链表（复用了DState的left指针）。这个链表的头是freelist。于是在分配一个DState空间时会优先检查freelist是否有项可用。</p>
+<figure class="highlight"><figcaption><span>allocdstate</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">/* Allocate DStates from a cached list. */</span><br><span class="line">DState*</span><br><span class="line">allocdstate(void)</span><br><span class="line">&#123;</span><br><span class="line">	DState *d;</span><br><span class="line">	</span><br><span class="line">	if((d = freelist) != NULL)</span><br><span class="line">		freelist = d-&gt;left;</span><br><span class="line">	else&#123;</span><br><span class="line">		d = malloc(sizeof *d + nstate*sizeof(State*));</span><br><span class="line">		d-&gt;l.s = (State**)(d+1);</span><br><span class="line">	&#125;</span><br><span class="line">	d-&gt;left = NULL;</span><br><span class="line">	d-&gt;right = NULL;</span><br><span class="line">	memset(d-&gt;next, 0, sizeof d-&gt;next);</span><br><span class="line">	return d;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个技巧充分复用了已经分配的数据结构，聪明的降低了内存释放的开销。</p>
+<ul>
+<li><code>nfa-posix.y</code>的实现也很有意思，他的主要目的是为了实现<code>submatch extraction</code>。也就是<a href="http://swtch.com/~rsc/regexp/regexp2.html" target="_blank" rel="external">这里</a>提到的：<blockquote>
+<p>There are two possible ways to avoid the seemingly unbounded tracking of space implied by POSIX submatching semantics. First, it turns out that matching the regular expression backward bounds the bookkeeping to being linear in the size of the regular expression. This program demonstrates the technique. </p>
+</blockquote>
+</li>
+</ul>
+<p><code>nfa-posix.y</code>采用的是逆向匹配正则，主要体现在两个地方：</p>
+<figure class="highlight cpp"><figcaption><span>paren</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Frag</span><br><span class="line"><span class="title">paren</span><span class="params">(Frag f, <span class="keyword">int</span> n)</span></span><br><span class="line"></span>&#123;</span><br><span class="line">    State *s1, *s2;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(n &gt; MPAREN)</span><br><span class="line">        <span class="keyword">return</span> f;</span><br><span class="line">    s1 = state(RParen, n, f.start, <span class="literal">NULL</span>);</span><br><span class="line">    s2 = state(LParen, n, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">    patch(f.out, s2);</span><br><span class="line">    <span class="keyword">return</span> frag(s1, list1(&amp;s2-&gt;out));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意这里构造的Frag的顺序，右括号指向f，f的出口指向左括号。</p>
+<figure class="highlight cpp"><figcaption><span>concat</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">concat:</span><br><span class="line">    repeat</span><br><span class="line">|   concat repeat</span><br><span class="line">    &#123;</span><br><span class="line">        patch($<span class="number">2.</span>out, $<span class="number">1.</span>start);</span><br><span class="line">        $$ = frag($<span class="number">2.</span>start, $<span class="number">1.</span>out);</span><br><span class="line">    &#125;</span><br><span class="line">;</span><br></pre></td></tr></table></figure>
+<p>可以对比下nfa里的实现，正好是反向的。$2的出口指向$1的开始。要是不细心，可能会忽略这两个微小而重要的区别。</p>
+<p>因此，通过文中的parser构造的NFA是逆向的，所以match函数也是从字符串的尾部开始匹配。</p>
+<h2 id="我的实现"><a href="#我的实现" class="headerlink" title="我的实现"></a>我的实现</h2><p>我根据<a href="http://swtch.com/~rsc/regexp/regexp1.html" target="_blank" rel="external">文章</a>中的描述，重写了一个实现。主要是去掉了一个静态的分配，正则的解析改用递归下降解析。并且将所有自动机内部的状态信息都封装到一个结构体中，加强了内存管理，可以释放内部创建的所有资源。我用Xcode自带的Instruments测试没有内存泄露，还算不错。我的实现放在<a href="https://github.com/sonald/thompson-nfa" target="_blank" rel="external">github</a>上了。</p>
+<p>PS: 我将文章中相关的几个实现一起放在仓库里了，方便自己研究用。</p>
+<p>PPS：顺便还发现了一个<code>nfa-posix.y</code>中的bug，我要不要告诉他呢。。。。纠结啊，应该是个笔误。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-06-09T03:11:25.000Z"><a href="/2013/06/09/2013-06-09-how-duffs-device-works/">2013-06-09</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/06/09/2013-06-09-how-duffs-device-works/">how duffs device works</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p><a href="/2013/04/17/javascript-tip-duffs-device/">上次</a>看到一段JS的代码觉得很酷，今天偶尔看到<a href="http://tenaciousc.com/how-duffs-device-works/" target="_blank" rel="external">另一篇文章</a>，讲的是原C版的Duff’s Device。自认为对C很有认识了，没想到这种诡异的写法还是难倒我了。现在才知道原来C的语法可以这么灵活。原文里给出了一个<a href="http://www.lysator.liu.se/c/ANSI-C-grammar-y.html" target="_blank" rel="external">链接</a>，是一个C的yacc语法文件。根据这个文件里switch和statement的描述可以很清楚的看出来，在switch中可以嵌入任何复杂的statement，而不仅仅是迭代语句。那到底生成的代码时怎么样的呢，它的工作原理在<a href="http://tenaciousc.com/how-duffs-device-works/" target="_blank" rel="external">文章</a>里已经进行了描述，但是想要知道到底是怎么样的，还是得看汇编，于是我将下面一段代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span><br><span class="line"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> key = <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">switch</span>(key)</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; ++i) &#123;</span><br><span class="line">            key = i;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">2</span>: <span class="built_in">printf</span>(<span class="string">"case 2: key is %d\n"</span>, key);</span><br><span class="line">        <span class="keyword">case</span> <span class="number">4</span>: <span class="built_in">printf</span>(<span class="string">"case 4: key is %d\n"</span>, key);</span><br><span class="line">        &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>用<code>clang -S -emit-llvm</code>反汇编了出来，核心的部分如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">  %key = alloca i32, align 4</span><br><span class="line">  %i = alloca i32, align 4</span><br><span class="line">  store i32 0, i32* %1</span><br><span class="line">  store i32 %argc, i32* %2, align 4</span><br><span class="line">  store i8** %argv, i8*** %3, align 8</span><br><span class="line">  store i32 2, i32* %key, align 4</span><br><span class="line">  %4 = load i32* %key, align 4</span><br><span class="line">  switch i32 %4, label %19 [</span><br><span class="line">    i32 2, label %11</span><br><span class="line">    i32 4, label %13</span><br><span class="line">  ]</span><br><span class="line">                                                  ; No predecessors!</span><br><span class="line">  store i32 0, i32* %i, align 4</span><br><span class="line">  br label %6</span><br><span class="line"></span><br><span class="line">; &lt;label&gt;:6                                       ; preds = %15, %5</span><br><span class="line">  %7 = load i32* %i, align 4</span><br><span class="line">  %8 = icmp slt i32 %7, 10</span><br><span class="line">  br i1 %8, label %9, label %18</span><br><span class="line"></span><br><span class="line">; &lt;label&gt;:9                                       ; preds = %6</span><br><span class="line">  %10 = load i32* %i, align 4</span><br><span class="line">  store i32 %10, i32* %key, align 4</span><br><span class="line">  br label %11</span><br><span class="line"></span><br><span class="line">; &lt;label&gt;:11                                      ; preds = %0, %9</span><br><span class="line">  %12 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([10 x i8]* @.str, i32 0, i32 0))</span><br><span class="line">  br label %13</span><br><span class="line"></span><br><span class="line">; &lt;label&gt;:13                                      ; preds = %0, %11</span><br><span class="line">  %14 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([10 x i8]* @.str1, i32 0, i32 0))</span><br><span class="line">  br label %15</span><br><span class="line"></span><br><span class="line">; &lt;label&gt;:15                                      ; preds = %13</span><br><span class="line">  %16 = load i32* %i, align 4</span><br><span class="line">  %17 = add nsw i32 %16, 1</span><br><span class="line">  store i32 %17, i32* %i, align 4</span><br><span class="line">  br label %6</span><br><span class="line"></span><br><span class="line">; &lt;label&gt;:18                                      ; preds = %6</span><br><span class="line">  br label %19</span><br><span class="line"></span><br><span class="line">; &lt;label&gt;:19                                      ; preds = %18, %0</span><br><span class="line">  ret i32 0</span><br></pre></td></tr></table></figure>
+<p>这个可读性还是很强的，基本上就是switch块和嵌入switch的循环被拆成两个独立的代码块，并且switch的分支语句会跳转到for循环体中带有相应label的部分。这个跳转只会影响for的第一次迭代，之后就是正常的循环了。另外，如果switch分支没有任何匹配的case，就会跳过整个循环（代码中switch的默认label是%19，对应函数的结尾处）。</p>
+<p>这个技巧有什么用我也不知道，说不定什么时候能派上用场呢。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-05-23T02:20:05.000Z"><a href="/2013/05/23/2013-05-23-a-mutable-problem-of-property-in-objective-c/">2013-05-23</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/05/23/2013-05-23-a-mutable-problem-of-property-in-objective-c/">NSMutableString may be immutable</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>因为有了一个苹果本，感觉不学点Objective C，不搞点iOS开发有点浪费。最近在学习Objective C的时候遇到一个坑，经过一点实验，终于想明白是怎么回事了。记下来算是个学习笔记。</p>
+<p>长话短说，下面的代码会运行时崩溃。</p>
+<pre><code>#include &lt;Foundation/Foundation.h&gt;
+
+@interface Command: NSObject
+@property (nonatomic, copy) NSMutableString *name;
+@end
+
+@implementation Command
+@end
+
+int main(int argc, char** argv) {
+    Command *c1 = [[Command alloc] init];
+    c1.name = [NSMutableString stringWithUTF8String:&quot;list-panes&quot;];
+
+    NSMutableString *n = c1.name;
+    [n appendString:@&quot;(target)&quot;];
+    return 0;
+}    
+</code></pre><p>原因是因为name属性设置了copy标志。这个copy告诉编译器生成类似下面的setter</p>
+<pre><code>- (void) setName: (NSMutableString *)data {
+    name = [data copy] ;
+}
+</code></pre><p>虽然NSString遵循了NSMutableCopying协议，但是由于赋值时得到的是copy返回的对象而不是mutableCopy，所以虽然<code>c1.name</code>返回的是一个NSMutableString，但是无法修改。这个解释听起来还算合理。</p>
+<p><strong>但是为什么一个NSMutableString实例是无法修改的呢？</strong> 难道<code>c1.name</code>返回的其实不是一个NSMutableString？于是我打印出它的类型：</p>
+<pre><code>NSLog(@&quot;class: %@&quot;, [c1.name class]);
+NSLog(@&quot;class: %@&quot;, [NSMutableString class]);
+</code></pre><p>输出的结果是</p>
+<pre><code>2013-05-24 00:04:24.395 a.out[58754:707] class: __NSCFString
+2013-05-24 00:04:24.396 a.out[58754:707] class: NSMutableString
+</code></pre><p>这个完全出乎我的意料，对于刚刚接触Objective C的我来说，这太诡异了。于是我仔细查看了NSString的参考手册。里面有这么一段：</p>
+<blockquote>
+<p>Because of the nature of class clusters, string objects aren’t actual<br>instances of the NSString or NSMutableString classes but of one of their<br>private subclasses. Although a string object’s class is private, its interface<br>is public, as declared by these abstract superclasses, NSString and<br>NSMutableString. The string classes adopt the NSCopying and NSMutableCopying<br>protocols, making it convenient to convert a string of one type to the other.</p>
+</blockquote>
+<p>基本意思就是说其实由NSString或NSMutableString构造出来的对象是某私有子类的类型。可以用类型检查来证实：</p>
+<pre><code>NSString* s = [NSString stringWithUTF8String: &quot;wor&quot;];
+NSLog(@&quot;kind of NSMutableString: %u&quot;, [s isKindOfClass: [NSMutableString class]]);
+NSLog(@&quot;kind of NSString: %u&quot;, [s isKindOfClass: [NSString class]]);
+
+NSMutableString* ms = [NSMutableString stringWithUTF8String: &quot;helo&quot;];
+NSLog(@&quot;kind of NSMutableString: %u&quot;, [ms isKindOfClass: [NSMutableString class]]);
+NSLog(@&quot;kind of NSString: %u&quot;, [ms isKindOfClass: [NSString class]]);
+</code></pre><p>输出结果是：</p>
+<pre><code>2013-05-24 00:28:33.995 a.out[58996:707] kind of NSMutableString: 1
+2013-05-24 00:28:33.996 a.out[58996:707] kind of NSString: 1
+2013-05-24 00:28:33.997 a.out[58996:707] kind of NSMutableString: 1
+2013-05-24 00:28:33.998 a.out[58996:707] kind of NSString: 1
+</code></pre><p>这说明两个string类型其实都是某个类型的子类型。</p>
+<p>于是我仔细翻查了官方文档，发现在Foundation框架中有一个叫<a href="https://developer.apple.com/library/mac/#documentation/General/Conceptual/CocoaEncyclopedia/ClassClusters/ClassClusters.html#//apple_ref/doc/uid/TP40010810-CH4-SW1" target="_blank" rel="external">类簇(class cluster)</a>的技术。在Foundation框架中有很多类簇，比如NSNumber，目的是减少暴露出来的公共类的数量，用私有子类来实现，这样使得外部接口简洁易用。具体信息可以参考苹果的<a href="https://developer.apple.com/library/mac/#documentation/General/Conceptual/CocoaEncyclopedia/ClassClusters/ClassClusters.html#//apple_ref/doc/uid/TP40010810-CH4-SW1" target="_blank" rel="external">文档</a>。所以表面上你得到的是一个NSMutableString的指针，但是由于使用了immutable copy，系统进行了优化，返回给你的其实是一个不可修改的string object。要更深入的理解最好去看官方文档。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-05-14T07:30:52.000Z"><a href="/2013/05/14/2013-05-14-iterm2-text-selection-tip/">2013-05-14</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/05/14/2013-05-14-iterm2-text-selection-tip/">iterm2 text selection tip</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>iterm2 is a great terminal in Mac OS X. It has a lot of features<br>go beyond what you thought a terminal might be. here is a tip I<br>learned recently.</p>
+<p>Turns out you can select text without mouse in iterm2. just by<br>press <code>CMD-f</code> to activate find. Enter some initial text you wish to<br>copy, you’ll find that the last matching highlighted with selected state. use <code>CMD-G</code> or <code>CMD-Shift-G</code> to switch selected text as you want and then press <code>tab</code> to advanced the selected text by words. To advance the beginning of the selection to the left, press <code>Shift-tab</code>. At most one line of text can be selected this way.</p>
+<p>It’s up to you to say if this is useful or not.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-04-23T00:56:56.000Z"><a href="/2013/04/23/2013-04-23-baidu-offline-map-data-is-wrong/">2013-04-23</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/04/23/2013-04-23-baidu-offline-map-data-is-wrong/">baidu offline map data is wrong</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>今天遇到一个问题，百度android sdk扫不出离线地图包，后来发现主要问题是官方文档说明没有及时更新。</p>
+<p>说实话，感觉百度的地图sdk有不少问题，官方api文档语焉不详，给出的demo有问题，说明更新也不及时。最可恶的是按照说明下载的离线数据包在程序里面扫不出来，几度让人怀疑自己的智商。期间试过多种方法，比如安装百度地图app，从百度地图里先下载离线地图，然后再回到自己的app，发现无法加载。从官方下载的离线数据包，根据<br><a href="http://shouji.baidu.com/map/map.html?from=3052" target="_blank" rel="external">说明</a>导入（当然，取决于你使用的sdk版本，说明可能是错的）sd卡后同样无法加载。</p>
+<p>最后发现导入数据包的正确方法是解压zip包，将里面的vmp目录拷贝到SD卡根目录的BaiduMapSDK目录下（没有就创建一个）。<a href="http://developer.baidu.com/map/android_refer/index.html" target="_blank" rel="external">MKOfflineMap</a>的scan函数返回值<br>一直都是0，所以不要理会它。<a href="http://developer.baidu.com/map/sdkandev-10.htm" target="_blank" rel="external">这里</a>关于离线包在SD卡上的存储未知的说明是正确的，而<a href="http://shouji.baidu.com/map/map.html?from=3052" target="_blank" rel="external">下载页面</a>给出的说明是错的。</p>
+<p>另外一种可以成功的方法是把sd卡里面所有的离线包删除，然后使用<a href="http://developer.baidu.com/map/android_refer/index.html" target="_blank" rel="external">MKOfflineMap</a>的searchCity搜索城市地图，并用start函数手动下载离线数据包（比如北京），然后scan会正确加载离线数据（虽然这个时候scan函数返回值还是0）。</p>
+<p>bonus: 另外，官网上的sdk包有bug，所以你可能需要联系百度地图团队（比如百度hi）获取一个更新的版本。遇到问题，去问百度客服吧，你的智商没问题。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
+<nav id="pagination">
+  
+    <a href="/" class="alignleft prev">Vorherige Seite</a>
+  
+  
+    <a href="/page/3/" class="alignright next">Nächste Seite</a>
+  
+  <div class="clearfix"></div>
+</nav></div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Suche">
+    <input type="hidden" name="q" value="site:sonald.me">
+  </form>
+</div>
+
+  
+
+  
+<div class="widget tag">
+  <h3 class="title">Tags</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/algorithm/">algorithm</a><small>13</small></li>
+  
+    <li><a href="/tags/android/">android</a><small>1</small></li>
+  
+    <li><a href="/tags/c/">c</a><small>1</small></li>
+  
+    <li><a href="/tags/emacs/">emacs</a><small>3</small></li>
+  
+    <li><a href="/tags/iterm2/">iterm2</a><small>2</small></li>
+  
+    <li><a href="/tags/javascript/">javascript</a><small>4</small></li>
+  
+    <li><a href="/tags/map/">map</a><small>1</small></li>
+  
+    <li><a href="/tags/mutter/">mutter</a><small>1</small></li>
+  
+    <li><a href="/tags/nepomuk/">nepomuk</a><small>1</small></li>
+  
+    <li><a href="/tags/nodejs/">nodejs</a><small>6</small></li>
+  
+    <li><a href="/tags/objc/">objc</a><small>2</small></li>
+  
+    <li><a href="/tags/octopress/">octopress</a><small>1</small></li>
+  
+    <li><a href="/tags/os/">os</a><small>1</small></li>
+  
+    <li><a href="/tags/performance/">performance</a><small>1</small></li>
+  
+    <li><a href="/tags/principle/">principle</a><small>1</small></li>
+  
+    <li><a href="/tags/programming/">programming</a><small>1</small></li>
+  
+    <li><a href="/tags/rails/">rails</a><small>1</small></li>
+  
+    <li><a href="/tags/regex/">regex</a><small>1</small></li>
+  
+    <li><a href="/tags/ruby/">ruby</a><small>1</small></li>
+  
+    <li><a href="/tags/thought/">thought</a><small>1</small></li>
+  
+    <li><a href="/tags/tip/">tip</a><small>6</small></li>
+  
+    <li><a href="/tags/utils/">utils</a><small>1</small></li>
+  
+    <li><a href="/tags/web/">web</a><small>2</small></li>
+  
+    <li><a href="/tags/wm/">wm</a><small>1</small></li>
+  
+    <li><a href="/tags/zsh/">zsh</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 Sian Cao
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

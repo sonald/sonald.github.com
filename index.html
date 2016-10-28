@@ -1,0 +1,599 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Working funny way</title>
+  <meta name="author" content="Sian Cao">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+  <meta property="og:site_name" content="Working funny way"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Working funny way" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-40340886-1', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+    <img style="margin-right: 30px"
+        src="https://www.gravatar.com/avatar/5965dd93d497bef6e9a0b4029b0e023d">
+    </img>
+</div>
+<div class="alignleft">
+  <h1><a href="/">Working funny way</a></h1>
+  <h2><a href="/">just some random thoughts and coding related</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+      <li><a href="http://sonald.github.io/Resume">Resume</a></li>
+    
+      <li><a href="http://github.com/sonald">Github</a></li>
+    
+      <li><a href="/about">About</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper">
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2016-03-22T08:20:47.000Z"><a href="/2016/03/22/madness-of-window-managers-1/">2016-03-22</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2016/03/22/madness-of-window-managers-1/">madness of window managers 1</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>搞了几个月的窗口管理器，不得不说这行真乱。即使有<a href="https://tronche.com/gui/x/icccm/" target="_blank" rel="external">icccm</a>和<a href="https://specifications.freedesktop.org/wm-spec/latest/index.html" target="_blank" rel="external">wm-spec</a>这样的协议存在，但是每个wm在实现的时候也未必完全按照规范来。而有的时候大概<br>是因为协议本身有些地方说的就比较模糊或者设计得不够合理，导致各个wm的行为出现不一致。<br>比如<a href="https://specifications.freedesktop.org/wm-spec/latest/index.html" target="_blank" rel="external">wm-spec</a>里提到的<br>_NET_WORKAREA这个属性。xfwm4，compiz和mutter在同一个多屏幕配置下出现了完全不同的设置，导致在一些场景下有些窗口出现的位置出现奇怪的反直觉。</p>
+<p>给个具体实例：<br>一个多屏环境，有三个工作区，有一个dock程序设置了STRUTS，数据分别是：</p>
+<pre><code>xrandr信息：
+LVDS1 connected primary 800x600+0+0
+DP1 connected 1440x900+800+0
+
+dock设置的struts信息：
+_NET_WM_STRUT_PARTIAL(CARDINAL) = 0, 0, 0, 362, 0, 0, 0, 0, 0, 0, 49, 725
+</code></pre><p>在这样一个配置下，三个wm给出的属性是：</p>
+<p>xfwm4   <strong>_NET_WORKAREA(CARDINAL) = 0, 0, 2240, 538, 0, 0, 2240, 538, 0, 0, 2240, 538, 0, 0, 2240, 538</strong></p>
+<p>compiz  <strong>_NET_WORKAREA(CARDINAL) = 0, 0, 2240, 900</strong></p>
+<p>mutter  <strong>_NET_WORKAREA(CARDINAL) = 725, 0, 1515, 900, 725, 0, 1515, 900, 725, 0, 1515, 900</strong></p>
+<p>从我个人角度看mutter是最合理的。首先三个工作区都有数据，避开了struts所占据的位置，并且使工作区面积最大化<br>（1515x900 &gt; 2240x538)，xfwm4其次，compiz最离谱，完全不遵守协议。尽管mutter看起来最符合规范，但是却导致有些程序在<br>放置窗口时出现了问题。比如eog这样的程序，在弹出下拉菜单时会尊重_NET_WORKAREA的设置，所以<br>它主动将弹出菜单强制放置在这个范围内（比如（734,126）），即使eog主窗口的位置可能不在此范围内（比如在LVDS1的（0,102）位置）。这导致视觉上，弹出菜单不在鼠标点击的位置弹出，反而偏移了很远。<br>而在compiz和xfwm4上此时却没有问题，因为它们的WORKAREA从（0,0）这个位置开始。有趣的是，如果双屏的分辨率稍作修改，变成如下所示：</p>
+<pre><code>LVDS1 connected primary 1366x768+0+0
+DP1 connected 1440x900+1366+0
+</code></pre><p>mutter上就不会出问题了。因为根据使工作区面积最大化的算法，_NET_WORKAREA变成了如下数据：</p>
+<pre><code>_NET_WORKAREA(CARDINAL) = 0, 0, 2806, 698, 0, 0, 2806, 698, 0, 0, 2806, 698
+</code></pre><p>但是这并不是说xfwm4上eog就不能出现类似现象，只要精心调整两屏的位置和分辨率，这个情况也能<br>构造出来。主要原因还是<a href="https://specifications.freedesktop.org/wm-spec/latest/index.html" target="_blank" rel="external">wm-spec</a>里对_NET_WORKAREA的描述并不是很精确，wm在实现时有很大的<br>自由性。像_NET_WORKAREA这种情况在wm的世界里似乎有很多。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2015-07-18T16:28:07.000Z"><a href="/2015/07/19/2015-07-19-how-to-implement-posix-signal-handling/">2015-07-19</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2015/07/19/2015-07-19-how-to-implement-posix-signal-handling/">如何实现简单的POSIX信号处理</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>这是一篇关于POSIX信号实现机制的文章，主要是基于自己的思考、<a href="http://github.com/sonald/sos" target="_blank" rel="external">sos</a>实现以及对早期linux内核（0.11和1.0版本）的分析。这里谈论的是古老的实现方式，我不确定是否还有系统在使用类似的方法。因为这里的实现技术具有很多缺陷，在描述实现细节之后我们再来看看一些现代linux的更好的实现方式。</p>
+<p>我将不会描述什么是信号以及如何使用信号，这方面最好的参考是UNIX环境高级编程，也可以参考<a href="https://www.nostarch.com/tlpi" title="tlpi" target="_blank" rel="external">《Linux Programming Interface》</a>这本书。信号的生命周期包括生成（generate），送达（deliver）。在这篇文章里我把重点放在deliver的实现上，更精确地说，我要通过一个具体而微的简单内核的实现来描述操作系统内核是怎么调用用户空间提前设置好的信号处理函数的。</p>
+<p>我们都知道操作系统内核和用户程序分别运行于独立的特权级。用户空间通过受限的方式（系统调用、文件读写等）访问内核资源。用户通过使用signal或sigaction系统调用来设置信号的自定义处理函数。我们都知道，POSIX信号是异步执行的（不考虑实时信号），发送信号的时刻与该信号对应的处理可能会相隔很远，具体要看是什么信号以及进程所处的状态。当信号最终被送达目标进程并被处理时，内核并不能直接调用自定义的信号处理函数，因为它所处的内存页是用户级的（准确的说其实是可以的，高特权级的代码是可以调用低特权级代码的，但由于各种安全原因并不会直接调用）。为了执行一段用户态的代码，内核需要使用一些技巧。</p>
+<p>在实现内核实施用户自定义函数时，需要考虑一些问题。首先，这种调用肯定是破坏性的。因为内核和函数处于不同的特权级（自然使用到的栈空间也不一样），没有简单的caller/callee关系，调用也不是通过通常的call指令发生的。所以要有一种方法保证执行信号处理函数前后的现场是一致的。另外，信号处理函数是可以嵌套的，用户完全可以在信号处理函数内部发送信号。我们设计的方案必须能处理这种情况。</p>
+<p>在x86系统下，如果代码要从高特权级（内核）跳转到一个低特权级（用户态）的代码段最基本的方法是手工构造一个iret调用。基本上这是所有中断服务例程返回用户态的方法。而我们实现处理函数的执行就是利用了这个iret指令。基本思路是：</p>
+<p>iret指令返回用户态时会从内核栈中弹出五个数据，分别是用户态的ss、esp、eflags，cs、eip。eip是执行系统调用的中断指令的下一条指令的地址。在正常情况下，iret将返回到eip地址处继续用户程序的执行。如果我们在iret执行前，修改了内核栈中对应eip位置的值，让其指向用户先前设置的信号处理函数的地址，那么iret返回后不就执行信号处理函数了吗。但是事情还没完，函数执行时，我们需要给它提供一个参数。而且这个函数执行完成后会返回哪里呢？合理的情况下当然是返回修改eip前，iret应该返回的位置。这么一来就清楚了，我们需要手动为信号处理函数在用户态的栈空间里建立一个栈帧，设置函数的参数和返回地址。这里有一个细节问题，那就是当我们手动建立栈帧时，势必修改了用户esp的值，而且信号处理函数有可能改动了某些寄存器的值。我们在处理函数ret之前要把现场恢复到原始状态，就好像iret是直接返回的一样。</p>
+<p>根据上面的描述，我们来看一个具体的实现，也就是<a href="http://github.com/sonald/sos" target="_blank" rel="external">sos</a>的<a href="https://github.com/sonald/sos/blob/master/kern%2Fcore%2Fsignal.cc#L216" target="_blank" rel="external">handle_signal</a>。首先要说明的，因为内核在何时deliver（即检测当前进程是否有pending的信号等待并处理）有很大的灵活性。比如linux会在每次时钟中断时检测，同时在任何中断请求结束并返回用户空间前也会检测。目前<a href="http://github.com/sonald/sos" target="_blank" rel="external">sos</a>的实现是只在系统调用返回用户空间前检测。</p>
+<p> 在实现上面的机制时，要如何保存和恢复现场，如何设置信号处理函数的调用环境等，有很多的选择性。我所使用的方法基本上跟linux 0.11版本一样（后来我看过几个其他的简单内核，其思路基本也是一样的）。这个函数目前实现不完整，但是表达了基本的要素。当检查到用户设置了自定义的处理函数时，就着手构造一个处理函数执行的环境。这段代码不长，我直接贴出来：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">uint32_t</span> oesp = regs-&gt;useresp;</span><br><span class="line"><span class="keyword">uint32_t</span>* ustack = (<span class="keyword">uint32_t</span>*)((<span class="keyword">char</span>*)oesp - <span class="keyword">sizeof</span>(<span class="keyword">sigcontext_t</span>));</span><br><span class="line"><span class="keyword">sigcontext_t</span> ctx;</span><br><span class="line">ctx.eax = regs-&gt;eax;</span><br><span class="line">ctx.ebx = regs-&gt;ebx;</span><br><span class="line">ctx.ecx = regs-&gt;ecx;</span><br><span class="line">ctx.edx = regs-&gt;edx;</span><br><span class="line">ctx.esi = regs-&gt;esi;</span><br><span class="line">ctx.edi = regs-&gt;edi;</span><br><span class="line">ctx.ebp = regs-&gt;ebp;</span><br><span class="line">ctx.uesp = regs-&gt;useresp;</span><br><span class="line">ctx.eip = regs-&gt;eip;</span><br><span class="line">ctx.sig_mask = current-&gt;sig.blocked;</span><br><span class="line"><span class="built_in">memcpy</span>(ustack, &amp;ctx, <span class="keyword">sizeof</span>(<span class="keyword">sigcontext_t</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">// trampoline code</span></span><br><span class="line"><span class="comment">// movl SYS_sigreturn, %eax</span></span><br><span class="line"><span class="comment">// int $0x80</span></span><br><span class="line"><span class="comment">// ret</span></span><br><span class="line"><span class="keyword">char</span>* code = (<span class="keyword">char</span>*)ustack - <span class="number">1</span>;</span><br><span class="line">*code-- = <span class="number">0xc3</span>; <span class="comment">// ret</span></span><br><span class="line">*code-- = <span class="number">0x80</span>;</span><br><span class="line">*code = <span class="number">0xcd</span>; <span class="comment">// int $0x80</span></span><br><span class="line">code -= <span class="number">4</span>;</span><br><span class="line">*(<span class="keyword">uint32_t</span>*)code = SYS_sigreturn;</span><br><span class="line">code--;</span><br><span class="line">*code = <span class="number">0xb8</span>;</span><br><span class="line"></span><br><span class="line">signal_dbg(<span class="string">"save at 0x%x, code at 0x%x, new eip 0x%x\n"</span>,</span><br><span class="line">        ustack, code, handler);</span><br><span class="line">ustack = (<span class="keyword">uint32_t</span>*)code - <span class="number">2</span>;</span><br><span class="line">ustack[<span class="number">0</span>] = (<span class="keyword">uint32_t</span>)code;</span><br><span class="line">ustack[<span class="number">1</span>] = sig;</span><br><span class="line">regs-&gt;eip = (<span class="keyword">uint32_t</span>)handler;</span><br><span class="line">regs-&gt;useresp = (<span class="keyword">uint32_t</span>)ustack;</span><br></pre></td></tr></table></figure>
+<p>代码很短，但是干了很多事情，我们分几个部分来看：</p>
+<ul>
+<li>首先是保存原始环境。regs指向内核栈iret返回前的中断上下文。我在用户栈的栈顶位置开辟一个空间来保存（sigcontext_t结构）。</li>
+<li>然后是一段硬编码的x86 32位代码，如注释所示，它构造了一个函数，这个函数的功能是执行一个系统调用SYS_sigreturn。如果你去看<a href="https://github.com/sonald/sos/blob/master/kern%2Fcore%2Fsignal.cc#L191" target="_blank" rel="external">sys_sigreturn</a>的代码，你就知道它是与之相对的用来恢复现场的系统调用。可以看出来，这段代码存放在用户栈中。如图所示：<img src="/images/code/posix.signal.implementation.directed.010.jpg" class="thumbnail" title="save context"></li>
+<li>最后修改了regs的eip，使其指向信号处理函数。而useresp指向新的ustack位置。ustack的栈底最后两个位置一个是信号处理函数的参数（即信号值）以及返回地址。返回地址指向了硬编码的那段代码的第一条指令的地址。于是在信号处理函数执行完成后，会跳转到上面的那段代码，该代码立即执行一个系统调用来恢复被信号处理函数改变的现场。如图所示：<img src="/images/code/posix.signal.implementation.directed.011.jpg" class="thumbnail" title="setup call"></li>
+</ul>
+<p>在信号处理函数执行完成后，会返回到并执行栈中的trampoline，从而触发一个对sigreturn的系统调用。陷入内核后，此时的栈情况如图所示：</p>
+<img src="/images/code/posix.signal.implementation.directed.012.jpg" class="thumbnail" title="restore context">
+<p>sigreturn的工作就是把保存在用户栈中上下文恢复到内核栈中对应的位置。注意，恢复后，regs里的eip指向了被信号处理函数打断的系统调用的返回地址。</p>
+<p>需要注意的是，上面的方法是不安全的，而且也不具有可移植性。现代的操作系统应该不会允许用户栈具有可执行权限（在linux下可以用cat /proc/self/maps看看[stack]区域）。而硬编码指令的做法也无法在不同的体系结构下运行。所以现代linux在恢复信号处理后的现场时，采用了其他技术（比如利用vdso和c库配合），这个需要另外一篇文章详细描述。</p>
+<p>PS：这有一个方便的查询linux系统调用的<a href="http://syscalls.kernelgrok.com" target="_blank" rel="external">网址</a>，挺方便的。</p>
+<p>PPS：<a href="http://github.com/sonald/sos" target="_blank" rel="external">sos</a>是我自己写的一个简单内核，极度不完善。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-12-05T13:32:10.000Z"><a href="/2014/12/05/2014-12-05-leetcode-longest-consecutive-sequence/">2014-12-05</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2014/12/05/2014-12-05-leetcode-longest-consecutive-sequence/">&#39;leetcode: longest consecutive sequence&#39;</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p><a href="https://oj.leetcode.com/problems/longest-consecutive-sequence/" target="_blank" rel="external">It</a> blocke me at first for a while, then suddenly I came up with an idea:</p>
+<p>first build a map, whose key is the beginning of consective seq and value is end of seq, which is initially equals to the beginning (length of seq is 1). </p>
+<p>then we walk through the map, during the walking, join the neighbour seqs and erase from map so we won’t visit twice.</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Solution &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">int</span> <span class="title">longestConsecutive</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;num)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">            <span class="built_in">unordered_map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; h;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, n = num.size(); i &lt; n; i++) &#123;</span><br><span class="line">                h[num[i]] = num[i];</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">auto</span> x = h.begin();</span><br><span class="line">            <span class="built_in">unordered_map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt;::iterator i;            </span><br><span class="line">            <span class="keyword">while</span> (x != h.end()) &#123;</span><br><span class="line">                <span class="keyword">auto</span> v = x-&gt;second;</span><br><span class="line">                <span class="keyword">while</span> ((i = h.find(v+<span class="number">1</span>)) != h.end()) &#123;</span><br><span class="line">                    x-&gt;second = h[v+<span class="number">1</span>];</span><br><span class="line">                    v = h[v+<span class="number">1</span>];</span><br><span class="line">                    h.erase(i);                                        </span><br><span class="line">                &#125;</span><br><span class="line">                res = max(res, v-x-&gt;first+<span class="number">1</span>);</span><br><span class="line">                x++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> res;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>The same idea can be described in a more concise way in one pass:</p>
+<p>This time we build the map on the way. The key is the num, but the value means the length of the sequence which has the key as one of its borders.</p>
+<p>we iterate each value in the num array, if it resides in the map, just ignore. Else, we find the two adjcent sequences from left and right, and combine them into one seq. after that, we update the value of the borders of the new seq to the length of the seq.</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Solution2 &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">int</span> <span class="title">longestConsecutive</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;num)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">            <span class="built_in">unordered_map</span>&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; h;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; x: num) &#123;</span><br><span class="line">                <span class="keyword">if</span> (!h[x]) &#123;</span><br><span class="line">                    h[x] = <span class="number">1</span> + h[x+<span class="number">1</span>] + h[x<span class="number">-1</span>];</span><br><span class="line">                    <span class="keyword">if</span> (h[x+<span class="number">1</span>]) h[h[x+<span class="number">1</span>]+x] = h[x]; </span><br><span class="line">                    <span class="keyword">if</span> (h[x<span class="number">-1</span>]) h[x-h[x<span class="number">-1</span>]] = h[x];</span><br><span class="line">                &#125;</span><br><span class="line">                res = max(h[x], res);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> res;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-12-02T04:54:56.000Z"><a href="/2014/12/02/2014-12-02-leetcode-text-justification/">2014-12-02</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2014/12/02/2014-12-02-leetcode-text-justification/">leetcode: text justification</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>I don’t know why it marked as hard since there is no need to messing around with strings or arrays. for clarity, I use two pass below, actually it can be done with one pass concisely.</p>
+<p>The idea is:</p>
+<ul>
+<li>group strings according to if they fit into the same line</li>
+<li>then caculate space between words in each line and generate compound string.</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Solution &#123;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; fullJustify(<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; &amp;words, <span class="keyword">int</span> L) &#123;</span><br><span class="line">            <span class="comment">//pack</span></span><br><span class="line">            <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&gt; groups;</span><br><span class="line">            <span class="keyword">while</span> (words.size()) &#123;</span><br><span class="line">                <span class="keyword">int</span> len = <span class="number">0</span>;</span><br><span class="line">                <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; g;</span><br><span class="line">                <span class="keyword">while</span> (words.size() &amp;&amp; words.front().size() + len &lt;= L) &#123;</span><br><span class="line">                    g.push_back(words.front());</span><br><span class="line">                    len += words.front().size() + <span class="number">1</span>;</span><br><span class="line">                    words.erase(words.begin());</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (g.size()) groups.push_back(g);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//adjust</span></span><br><span class="line">            <span class="keyword">int</span> j = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; x: groups) &#123;</span><br><span class="line">                <span class="built_in">string</span> s = x.front();</span><br><span class="line">                <span class="keyword">if</span> (x.size() == <span class="number">1</span>) s += <span class="built_in">string</span>(L - s.size(), <span class="string">' '</span>);</span><br><span class="line">                <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">auto</span> k = L;</span><br><span class="line">                    <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; i: x) k -= i.size();</span><br><span class="line">                    <span class="keyword">auto</span> d = k / (x.size()<span class="number">-1</span>), r = k % (x.size()<span class="number">-1</span>);</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">if</span> (j == groups.size()<span class="number">-1</span>) &#123;d = <span class="number">0</span>; r = x.size(); &#125;</span><br><span class="line">                    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; x.size(); i++) &#123;</span><br><span class="line">                        s += <span class="built_in">string</span>((i &lt;= r ? (d+<span class="number">1</span>) : d), <span class="string">' '</span>) + x[i];</span><br><span class="line">                        k -= d+(i&lt;=r?<span class="number">1</span>:<span class="number">0</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">if</span> (k) s += <span class="built_in">string</span>(k, <span class="string">' '</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                words.push_back(s);</span><br><span class="line">                j++;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> words;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-11-30T03:25:12.000Z"><a href="/2014/11/30/2014-11-30-leetcode-copy-list-with-random-pointer-/">2014-11-30</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2014/11/30/2014-11-30-leetcode-copy-list-with-random-pointer-/">leetcode: Copy List with Random Pointer </a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p><a href="https://oj.leetcode.com/problems/copy-list-with-random-pointer/" target="_blank" rel="external">This problam</a> inspires a lot of interesting solutions. </p>
+<p>we can create the new list by iterating the origin list. when the origin node has a random pointer. we spawn a new node and record it in a map. the key of map is the random pointer from origin node and the value is the new node for new list. </p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Solution &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">RandomListNode *<span class="title">copyRandomList</span><span class="params">(RandomListNode *head)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// old &lt;-&gt; new</span></span><br><span class="line">        <span class="built_in">unordered_map</span>&lt;RandomListNode*, RandomListNode*&gt; rel;</span><br><span class="line">        RandomListNode* p = head;</span><br><span class="line">        RandomListNode dummy &#123;<span class="number">0</span>&#125;;</span><br><span class="line">        RandomListNode* res = &amp;dummy;</span><br><span class="line">        <span class="keyword">while</span> (p) &#123;</span><br><span class="line">            <span class="keyword">if</span> (rel.find(p) != rel.end()) &#123;</span><br><span class="line">                res-&gt;next = rel[p];</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                res-&gt;next = <span class="keyword">new</span> RandomListNode &#123;p-&gt;label&#125;;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (p-&gt;random) &#123;</span><br><span class="line">                <span class="keyword">if</span> (rel.find(p-&gt;random) == rel.end()) &#123;</span><br><span class="line">                    rel[p-&gt;random] = <span class="keyword">new</span> RandomListNode &#123;p-&gt;random-&gt;label&#125;;</span><br><span class="line">                &#125;</span><br><span class="line">                res-&gt;next-&gt;random = rel[p-&gt;random];</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            p = p-&gt;next;</span><br><span class="line">            res = res-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dummy.next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>Another interesting way of doing it w/o extra space can be accomplished by:</p>
+<ol>
+<li>first generate new list’s nodes and interleave with old list by using old node’s next pointer to pointer to new node. after this done, we get one single list with two lists’ nodes included and interleaved.</li>
+<li>repair new list nodes’ random pointer inplace.</li>
+<li>split two lists apart to restore the structure.</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Solution &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">RandomListNode *<span class="title">copyRandomList</span><span class="params">(RandomListNode *head)</span> </span>&#123;</span><br><span class="line">        RandomListNode* p = head;</span><br><span class="line">        RandomListNode dummy &#123;<span class="number">0</span>&#125;;</span><br><span class="line">        RandomListNode* res = &amp;dummy;</span><br><span class="line">        <span class="keyword">while</span> (p) &#123;</span><br><span class="line">            <span class="keyword">auto</span>* t = <span class="keyword">new</span> RandomListNode &#123;p-&gt;label&#125;;</span><br><span class="line">            t-&gt;next = p-&gt;next;</span><br><span class="line">            p-&gt;next = t;</span><br><span class="line">            p = t-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        p = head;</span><br><span class="line">        <span class="keyword">while</span> (p) &#123;</span><br><span class="line">            <span class="keyword">if</span> (p-&gt;random)</span><br><span class="line">                p-&gt;next-&gt;random = p-&gt;random-&gt;next;</span><br><span class="line">            p = p-&gt;next-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        p = head;</span><br><span class="line">        <span class="keyword">if</span> (p) &#123; dummy.next = p-&gt;next; res = p-&gt;next; &#125;</span><br><span class="line">        <span class="keyword">while</span> (p) &#123;</span><br><span class="line">            p-&gt;next = p-&gt;next-&gt;next;</span><br><span class="line">            <span class="keyword">if</span> (res-&gt;next) res-&gt;next = res-&gt;next-&gt;next;</span><br><span class="line">            p = p-&gt;next;</span><br><span class="line">            res = res-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dummy.next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>PS: if OJ allows me to modify the orignal list, then we can actually do it in two-pass without extra space.</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Solution &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">RandomListNode *<span class="title">copyRandomList</span><span class="params">(RandomListNode *head)</span> </span>&#123;</span><br><span class="line">        RandomListNode* p = head;</span><br><span class="line">        RandomListNode dummy &#123;<span class="number">0</span>&#125;;</span><br><span class="line">        RandomListNode* res = &amp;dummy;</span><br><span class="line">        <span class="keyword">while</span> (p) &#123;</span><br><span class="line">            res-&gt;next = <span class="keyword">new</span> RandomListNode &#123;p-&gt;label&#125;;</span><br><span class="line">            res-&gt;next-&gt;random = p-&gt;random;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">auto</span>* pp = p;</span><br><span class="line">            p = p-&gt;next;</span><br><span class="line">            pp-&gt;next = res-&gt;next;</span><br><span class="line">            res = res-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        res = dummy.next;</span><br><span class="line">        <span class="keyword">while</span> (res) &#123;</span><br><span class="line">            <span class="keyword">if</span> (res-&gt;random) res-&gt;random = res-&gt;random-&gt;next;</span><br><span class="line">            res = res-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dummy.next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-11-29T16:21:28.000Z"><a href="/2014/11/30/2014-11-30-leetcode-recover-binary-search-tree/">2014-11-30</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2014/11/30/2014-11-30-leetcode-recover-binary-search-tree/">leetcode: Recover Binary Search Tree</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p><a href="https://oj.leetcode.com/problems/recover-binary-search-tree/" target="_blank" rel="external">The problam</a> is fun. The note says </p>
+<blockquote>
+<p>A solution using O(n) space is pretty straight forward. Could you devise a constant space solution?</p>
+</blockquote>
+<p>I first devise a way to detect mis-placed elements in one pass with a stack. the idea is quite simple after you thought through:</p>
+<p>traverse the tree inorderly, the elements should appear in ascending order. the ones that disobey the rule are our spots.</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Solution &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    TreeNode* n1 = <span class="literal">nullptr</span>, *n2 = <span class="literal">nullptr</span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">recoverTree</span><span class="params">(TreeNode *root)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!root) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">vector</span>&lt;TreeNode*&gt; sp;</span><br><span class="line">        TreeNode* nd = root, *prev = <span class="literal">nullptr</span>;</span><br><span class="line">        <span class="keyword">while</span> (sp.size() || nd) &#123;</span><br><span class="line">            <span class="keyword">while</span> (nd) &#123; sp.push_back(nd); nd = nd-&gt;left; &#125;</span><br><span class="line">            nd = sp.back(); sp.pop_back();</span><br><span class="line">            <span class="keyword">if</span> (n1 &amp;&amp; n1-&gt;val &lt; nd-&gt;val) <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (prev &amp;&amp; prev-&gt;val &gt; nd-&gt;val) &#123;</span><br><span class="line">               <span class="keyword">if</span> (!n1) &#123;</span><br><span class="line">                   n1 = prev;</span><br><span class="line">                   n2 = nd;</span><br><span class="line">               &#125; <span class="keyword">else</span> &#123; n2 = nd; <span class="keyword">break</span>; &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            prev = nd;</span><br><span class="line">            nd = nd-&gt;right;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">std</span>::swap(n1-&gt;val, n2-&gt;val);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>Then it is easy to trasfer the above into a O(1) space solution with morris inorder traversal.</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Solution2 &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    TreeNode* n1 = <span class="literal">nullptr</span>, *n2 = <span class="literal">nullptr</span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">recoverTree</span><span class="params">(TreeNode *root)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!root) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">        TreeNode* prev = <span class="literal">nullptr</span>, *cur = <span class="literal">nullptr</span>;</span><br><span class="line">        <span class="keyword">while</span> (root) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!root-&gt;left) &#123;</span><br><span class="line">                prev = cur; cur = root;</span><br><span class="line">                root = root-&gt;right;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">auto</span>* l = root-&gt;left;</span><br><span class="line">                <span class="keyword">while</span> (l-&gt;right &amp;&amp; l-&gt;right != root) l = l-&gt;right;</span><br><span class="line">                <span class="keyword">if</span> (l-&gt;right == root) &#123;</span><br><span class="line">                    prev = cur; cur = root;</span><br><span class="line">                    root = root-&gt;right;</span><br><span class="line">                    l-&gt;right = <span class="literal">nullptr</span>;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    l-&gt;right = root;</span><br><span class="line">                    root = root-&gt;left;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (prev &amp;&amp; prev-&gt;val &gt; cur-&gt;val) &#123;</span><br><span class="line">                <span class="keyword">if</span> (!n1) &#123; n1 = prev; n2 = cur; &#125; </span><br><span class="line">                <span class="keyword">else</span> &#123; n2 = cur; &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">std</span>::swap(n1-&gt;val, n2-&gt;val);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>PS: I found there is also a <a href="https://oj.leetcode.com/discuss/14863/share-my-o-n-time-o-1-space-solution" target="_blank" rel="external">solution</a> that first cleverly transforms the tree into an ordered linked-list and then detects the misplaced elements and then restore it back. </p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-11-27T10:25:52.000Z"><a href="/2014/11/27/2014-11-27-leetcode-convert-sorted-list-to-binary-search-tree/">2014-11-27</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2014/11/27/2014-11-27-leetcode-convert-sorted-list-to-binary-search-tree/">leetcode: Convert Sorted List to Binary Search Tree</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>If you have solved the previous problem, then it can be done by first convert the list into a vector and then do the same thing as the previous problem does. The interesting way is to do it on the list itself and almost O(1) space used. </p>
+<p>The idea is thus:</p>
+<ol>
+<li>first, get length of the list</li>
+<li>recursively build left subtree bottom up </li>
+<li>create current root and move list pointer to next element</li>
+<li>recursively build right subtree bottom up</li>
+<li>return the root</li>
+</ol>
+<p>My orignal solution uses an instance memeber <code>ListNode* cur</code> to remember current position of list. but I see some guys using reference to ListNode pointer to finish the job which I think more elegant.</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Solution &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">TreeNode *<span class="title">sortedListToBST</span><span class="params">(ListNode *head)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> n = <span class="number">0</span>;</span><br><span class="line">        ListNode* p = head;</span><br><span class="line">        <span class="keyword">while</span> (p) &#123; n++; p = p-&gt;next; &#125;</span><br><span class="line">        <span class="keyword">return</span> helper(head, n);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function">TreeNode* <span class="title">helper</span><span class="params">(ListNode* &amp;h, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (n == <span class="number">0</span>) <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">        <span class="keyword">auto</span>* left = helper(h, n/<span class="number">2</span>);</span><br><span class="line">        <span class="keyword">auto</span>* root = <span class="keyword">new</span> TreeNode &#123;h-&gt;val&#125;;</span><br><span class="line">        h = h-&gt;next;</span><br><span class="line">        root-&gt;left = left;</span><br><span class="line">        root-&gt;right = helper(h, n - n/<span class="number">2</span> - <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><strong>PS</strong>: I believe the space complexity is O(lgN) due to stack usage.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-11-24T11:24:29.000Z"><a href="/2014/11/24/2014-11-24-leetcode-triangle/">2014-11-24</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2014/11/24/2014-11-24-leetcode-triangle/">leetcode: triangle</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p><a href="https://oj.leetcode.com/problems/triangle/" target="_blank" rel="external">This</a> is also a problem which can be easily solved by dynamic programming (DP is so ubiquitous). Anyway, The <strong>Note</strong> said </p>
+<blockquote>
+<p>Bonus point if you are able to do this using only O(n) extra space, where n is the total number of rows in the triangle.</p>
+</blockquote>
+<p>Well, acctually the problem can be solved without extra space. The idea is quit simple:<br>We store the dp value (current minimum path sum) in-place from the bottom up, then the value in the tip of triangle is the result.</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Solution &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">minimumTotal</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &gt; &amp;triangle)</span> </span>&#123;        </span><br><span class="line">        <span class="keyword">int</span> n = triangle.size();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> l = n<span class="number">-2</span>; l &gt;= <span class="number">0</span>; l--) &#123;</span><br><span class="line">            <span class="keyword">auto</span>&amp; v = triangle[l];</span><br><span class="line">            <span class="keyword">auto</span>&amp; v2 = triangle[l+<span class="number">1</span>];</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; v.size(); i++) &#123;</span><br><span class="line">                v[i] += min(v2[i], v2[i+<span class="number">1</span>]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> triangle[<span class="number">0</span>][<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-11-23T07:54:03.000Z"><a href="/2014/11/23/2014-11-23-leetcode-interleaving-string/">2014-11-23</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2014/11/23/2014-11-23-leetcode-interleaving-string/">leetcode: interleaving string</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>The description is <a href="https://oj.leetcode.com/problems/interleaving-string/" target="_blank" rel="external">here</a>. The moment you see there are overlapping sub problems and sub optimal structure you know the problem can be solved easily using <strong>dynamical programming</strong>. The basic idea is thus:</p>
+<p>the value of dp[i][j] represents if there is any of the interleaved strings come out of s1[0-i]  and s2[0-j].</p>
+<p>dp[i][j] = (dp[i-1][j] if s1[i] == s3[i+j]) or (dp[i][j-1] if s2[j] == s3[i+j])</p>
+<p>for the sake of making programming easily, the matrix has been augmented by 1 in each dimension.</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Solution &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">isInterleave</span><span class="params">(<span class="built_in">string</span> s1, <span class="built_in">string</span> s2, <span class="built_in">string</span> s3)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> n = s1.size(), m = s2.size(), len = s3.size();</span><br><span class="line">        <span class="keyword">if</span> (n + m != len) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; dp(n+<span class="number">1</span>, <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(m+<span class="number">1</span>, <span class="literal">false</span>));</span><br><span class="line">        dp[<span class="number">0</span>][<span class="number">0</span>] = <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) dp[i][<span class="number">0</span>] = s1[i<span class="number">-1</span>] == s3[i<span class="number">-1</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= m; i++) dp[<span class="number">0</span>][i] = s2[i<span class="number">-1</span>] == s3[i<span class="number">-1</span>];            </span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= m; j++) &#123;</span><br><span class="line">                <span class="keyword">auto</span> v1 = s1[i<span class="number">-1</span>], v2 = s2[j<span class="number">-1</span>], r2 = s3[i+j<span class="number">-1</span>];</span><br><span class="line">                <span class="keyword">if</span> (v2 == r2) dp[i][j] = dp[i][j<span class="number">-1</span>];</span><br><span class="line">                <span class="keyword">if</span> (!dp[i][j] &amp;&amp; v1 == r2) dp[i][j] = dp[i<span class="number">-1</span>][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dp[n][m];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>The above uses O(m*n) space, which is common case. We can reduce the space usage by <strong>the observation</strong> that to calculate dp[i][j] we only need to know dp[i-1][j] which is the value of last line above it and dp[i][j-1] which is the previous value of the same line. </p>
+<p>So here I use array dp to represent both the values of the last line and the previous one. the trick is that when we calculating dp[j], dp[j-1] will store the previous value of the same line, and dp[j] itself (before write new value into it) is the value of last line above. Then we can use these two values to write new value into dp[j].</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Solution &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">isInterleave</span><span class="params">(<span class="built_in">string</span> s1, <span class="built_in">string</span> s2, <span class="built_in">string</span> s3)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> n = s1.size(), m = s2.size(), len = s3.size();</span><br><span class="line">        <span class="keyword">if</span> (n + m != len) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; dp(m+<span class="number">1</span>, <span class="literal">true</span>);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= m; i++) dp[i] = s2[i<span class="number">-1</span>] == s3[i<span class="number">-1</span>];            </span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">            dp[<span class="number">0</span>] = s1[i<span class="number">-1</span>] == s3[i<span class="number">-1</span>];</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= m; j++) &#123;</span><br><span class="line">                <span class="keyword">auto</span> v1 = s1[i<span class="number">-1</span>], v2 = s2[j<span class="number">-1</span>], r2 = s3[i+j<span class="number">-1</span>];</span><br><span class="line">                <span class="keyword">auto</span> old = dp[j];</span><br><span class="line">                dp[j] = <span class="literal">false</span>;</span><br><span class="line">                <span class="keyword">if</span> (v2 == r2) dp[j] = dp[j<span class="number">-1</span>];</span><br><span class="line">                <span class="keyword">if</span> (!dp[j] &amp;&amp; v1 == r2) dp[j] = old; <span class="comment">// the last line</span></span><br><span class="line">                </span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dp[m];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-11-17T13:23:20.000Z"><a href="/2014/11/17/2014-11-17-leetcode-largest-rectangle-in-histogram/">2014-11-17</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2014/11/17/2014-11-17-leetcode-largest-rectangle-in-histogram/">leetcode: largest rectangle in histogram</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>第一次遇到<a href="https://oj.leetcode.com/problems/largest-rectangle-in-histogram/" target="_blank" rel="external">这个</a>问题会觉得有难度，我是先做的<a href="https://oj.leetcode.com/problems/maximal-rectangle/" target="_blank" rel="external">maximal rectangle</a>，然后再看到这个题，所以顺手就写了，结果TLE了。其实leetcode的时间复杂度要求还不是很变态的（想变态的就去spoj找虐），所以之前pass了就没在乎。现在回过头来做这个就不得不改变下写法。其实这个算法是<a href="/2014/10/24/leetcode-maximal-rectangle/">我的maximal rectangle实现</a>的基础。之前的写法有问题，因为在最坏情况下是O(n<sup>3</sup>)，但是基本思想是一样的。于是重写的时候做了改进。</p>
+<p>基本思路是迭代height数组每一项，用栈sp记录到目前为止小于当前高度、并且高度递增的所有bar的位置。我们可以计算以栈中每一项为高度的最大矩形来找到目前为止的最大矩形。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Solution &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">largestRectangleArea</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;height)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;pair&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt;&gt; sp; <span class="comment">// &lt;height, index&gt;</span></span><br><span class="line">        <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">        sp.emplace_back(<span class="number">0</span>, <span class="number">-1</span>);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, n = height.size(); i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> k = height[i];</span><br><span class="line">            <span class="keyword">bool</span> dropping = <span class="literal">false</span>;</span><br><span class="line">            <span class="keyword">while</span> (sp.size() &amp;&amp; sp.back().first &gt;= k) &#123;</span><br><span class="line">                sp.pop_back();</span><br><span class="line">                dropping = <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            sp.emplace_back(k, i);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (dropping || i == n<span class="number">-1</span> || (sp.back().first &gt;= height[i+<span class="number">1</span>])) &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> p = <span class="number">1</span>; p &lt; sp.size(); p++) &#123;</span><br><span class="line">                    <span class="keyword">auto</span> r = sp[p].first * (i - sp[p<span class="number">-1</span>].second);</span><br><span class="line">                    res = max(r, res);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;            </span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>基于同样的想法，我们可以稍微改写一下。由于我们只需要使用sp记录到当前位置为止所有上升的bar的高度，当遇到一个下降的bar时，所有栈里高度大于当前bar的位置在后面的计算中都不需要了，可以弹出并计算其最大矩形大小。整个算法用一个紧凑的while循环实现。这个方法保证了O(n)的时间复杂度。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">largestRectangleArea</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;height)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;pair&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt;&gt; sp; </span><br><span class="line">    <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">    height.push_back(<span class="number">0</span>);</span><br><span class="line">    sp.emplace_back(<span class="number">0</span>, <span class="number">-1</span>); <span class="comment">// sentinal</span></span><br><span class="line">    <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (i &lt; height.size()) &#123;</span><br><span class="line">        <span class="keyword">int</span> k = height[i];</span><br><span class="line">        <span class="keyword">if</span> (sp.size() &amp;&amp; sp.back().first &lt;= k) &#123;</span><br><span class="line">            sp.emplace_back(k, i++);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">auto</span> p = sp.back();</span><br><span class="line">            sp.pop_back();                </span><br><span class="line">            res = max((i-sp.back().second<span class="number">-1</span>) * p.first,  res);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (sp.size() &gt; <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">auto</span> p = sp.back();</span><br><span class="line">        sp.pop_back();                </span><br><span class="line">        res = max((i-sp.back().second<span class="number">-1</span>) * p.first,  res);            </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> res;        </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后一个方法据说是经典实现，它基于<a href="http://www.geeksforgeeks.org/largest-rectangular-area-in-a-histogram-set-1/" target="_blank" rel="external">segment tree</a>来实现，O(nlgn)的时间复杂度。segment tree的思想可以看这个<a href="http://www.geeksforgeeks.org/segment-tree-set-1-sum-of-given-range/" target="_blank" rel="external">链接</a>，实现比较容易。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> SegmentTree &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; nodes;</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line"></span><br><span class="line">    SegmentTree(<span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; v) &#123;</span><br><span class="line">        n = v.size();</span><br><span class="line">        <span class="keyword">int</span> h = <span class="built_in">std</span>::<span class="built_in">ceil</span>(<span class="built_in">std</span>::log2(n)); </span><br><span class="line">        nodes = <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(<span class="number">2</span>*<span class="built_in">std</span>::<span class="built_in">pow</span>(<span class="number">2</span>,h)<span class="number">-1</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">        build(v, <span class="number">0</span>, <span class="number">0</span>, n<span class="number">-1</span>);        </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">query</span><span class="params">(<span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; v, <span class="keyword">int</span> ql, <span class="keyword">int</span> qr)</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> queryMin(v, <span class="number">0</span>, <span class="number">0</span>, n<span class="number">-1</span>, ql, qr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">idOfMin</span><span class="params">(<span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; v, <span class="keyword">int</span> id1, <span class="keyword">int</span> id2)</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (id1 == INT_MAX) <span class="keyword">return</span> id2;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (id2 == INT_MAX) <span class="keyword">return</span> id1;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> (v[id1] &lt; v[id2]) ? id1 : id2;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// [l, r] is region of id, [ql, qr] is query region</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">queryMin</span><span class="params">(<span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; v, <span class="keyword">int</span> id, <span class="keyword">int</span> l, <span class="keyword">int</span> r, <span class="keyword">int</span> ql, <span class="keyword">int</span> qr)</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (ql &lt;= l &amp;&amp; qr &gt;= r) <span class="keyword">return</span> nodes[id];</span><br><span class="line">        <span class="keyword">if</span> (ql &gt; r || qr &lt; l) <span class="keyword">return</span> INT_MAX;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> mid = l + (r - l) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">return</span> idOfMin(v, queryMin(v, id*<span class="number">2</span>+<span class="number">1</span>, l, mid, ql, qr), queryMin(v, id*<span class="number">2</span>+<span class="number">2</span>, mid+<span class="number">1</span>, r, ql, qr));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">build</span><span class="params">(<span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; v, <span class="keyword">int</span> id, <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (l == r) &#123;</span><br><span class="line">            <span class="keyword">return</span> nodes[id] = l;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> mid = l + (r-l)/<span class="number">2</span>;</span><br><span class="line">        <span class="keyword">return</span> nodes[id] = idOfMin(v, build(v, id*<span class="number">2</span>+<span class="number">1</span>, l, mid), build(v, id*<span class="number">2</span>+<span class="number">2</span>, mid+<span class="number">1</span>, r));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> Solution3 &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">largestRectangleArea</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;height)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (height.size() == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="function">SegmentTree <span class="title">st</span><span class="params">(height)</span></span>;</span><br><span class="line">        <span class="keyword">return</span> dac(height, st, <span class="number">0</span>, height.size()<span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">dac</span><span class="params">(<span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; height, <span class="keyword">const</span> SegmentTree&amp; st, <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (l &gt; r) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        <span class="keyword">if</span> (l == r) <span class="keyword">return</span> height[l];</span><br><span class="line">        <span class="keyword">int</span> id = st.query(height, l, r);</span><br><span class="line">        <span class="keyword">return</span> max(max(dac(height, st, l, id<span class="number">-1</span>), dac(height, st, id+<span class="number">1</span>, r)), (r-l+<span class="number">1</span>)*height[id]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
+<nav id="pagination">
+  
+  
+    <a href="/page/2/" class="alignright next">Nächste Seite</a>
+  
+  <div class="clearfix"></div>
+</nav></div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Suche">
+    <input type="hidden" name="q" value="site:sonald.me">
+  </form>
+</div>
+
+  
+
+  
+<div class="widget tag">
+  <h3 class="title">Tags</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/algorithm/">algorithm</a><small>13</small></li>
+  
+    <li><a href="/tags/android/">android</a><small>1</small></li>
+  
+    <li><a href="/tags/c/">c</a><small>1</small></li>
+  
+    <li><a href="/tags/emacs/">emacs</a><small>3</small></li>
+  
+    <li><a href="/tags/iterm2/">iterm2</a><small>2</small></li>
+  
+    <li><a href="/tags/javascript/">javascript</a><small>4</small></li>
+  
+    <li><a href="/tags/map/">map</a><small>1</small></li>
+  
+    <li><a href="/tags/mutter/">mutter</a><small>1</small></li>
+  
+    <li><a href="/tags/nepomuk/">nepomuk</a><small>1</small></li>
+  
+    <li><a href="/tags/nodejs/">nodejs</a><small>6</small></li>
+  
+    <li><a href="/tags/objc/">objc</a><small>2</small></li>
+  
+    <li><a href="/tags/octopress/">octopress</a><small>1</small></li>
+  
+    <li><a href="/tags/os/">os</a><small>1</small></li>
+  
+    <li><a href="/tags/performance/">performance</a><small>1</small></li>
+  
+    <li><a href="/tags/principle/">principle</a><small>1</small></li>
+  
+    <li><a href="/tags/programming/">programming</a><small>1</small></li>
+  
+    <li><a href="/tags/rails/">rails</a><small>1</small></li>
+  
+    <li><a href="/tags/regex/">regex</a><small>1</small></li>
+  
+    <li><a href="/tags/ruby/">ruby</a><small>1</small></li>
+  
+    <li><a href="/tags/thought/">thought</a><small>1</small></li>
+  
+    <li><a href="/tags/tip/">tip</a><small>6</small></li>
+  
+    <li><a href="/tags/utils/">utils</a><small>1</small></li>
+  
+    <li><a href="/tags/web/">web</a><small>2</small></li>
+  
+    <li><a href="/tags/wm/">wm</a><small>1</small></li>
+  
+    <li><a href="/tags/zsh/">zsh</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 Sian Cao
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>
